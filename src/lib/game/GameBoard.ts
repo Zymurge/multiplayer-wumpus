@@ -17,15 +17,41 @@ export interface GridCell {
  * Does NOT handle geometry operations - delegates to IGridSystem
  */
 export class GameBoard {
+	private static readonly MAX_GRID_SIZE = 24;
+	
 	private gridSystem: IGridSystem;
 	private cells: Map<string, GridCell>;
+	private fadeSteps: number;
 	
-	constructor(gridSystem: IGridSystem) {
+	constructor(gridSystem: IGridSystem, fadeSteps: number = 3) {
+		// Validate grid dimensions
+		const dimensions = gridSystem.getDimensions();
+		if (dimensions.width <= 0 || dimensions.height <= 0) {
+			throw new Error('Grid dimensions must be positive integers');
+		}
+		if (dimensions.width > GameBoard.MAX_GRID_SIZE || dimensions.height > GameBoard.MAX_GRID_SIZE) {
+			throw new Error(`Grid dimensions cannot exceed ${GameBoard.MAX_GRID_SIZE}`);
+		}
+		
 		this.gridSystem = gridSystem;
+		this.fadeSteps = fadeSteps;
 		this.cells = new Map();
 		this.initializeCells();
 	}
 	
+	/**
+	 * Initialize a single cell to default state
+	 */
+	initializeCell(pos: Position): void {
+		const cell = this.getCell(pos);
+		if (cell) {
+			cell.shade = 100;
+			cell.value = null;
+			cell.clicked = false;
+			cell.fadeCounter = 0;
+		}
+	}
+
 	/**
 	 * Initialize all cells to default state
 	 */
@@ -62,45 +88,42 @@ export class GameBoard {
 	 * Set a cell's clicked state and value
 	 */
 	setCellClicked(pos: Position, value: number): void {
+		// Validate value is not negative
+		if (value < 0) {
+			throw new Error('Cell value cannot be negative');
+		}
+		
+		// Validate coordinates are valid
+		if (!this.gridSystem.isValidPosition(pos)) {
+			throw new Error('Invalid position');
+		}
+		
 		const cell = this.getCell(pos);
 		if (cell) {
 			cell.value = value;
 			cell.shade = 0;
 			cell.clicked = true;
-			cell.fadeCounter = 3;
+			cell.fadeCounter = this.fadeSteps;
 		}
 	}
 	
+
+	
 	/**
-	 * Apply fade to all cells based on rate
+	 * Apply fade step to all clicked cells
+	 * Decrements fadeCounter for all clicked cells and updates their shade
 	 */
-	fadeAllCells(rate: number): void {
+	fadeStep(): void {
 		for (const cell of this.cells.values()) {
-			cell.shade = this.fadeValue(cell.shade, rate);
-		}
-	}
-	
-	/**
-	 * Apply fade based on click count for all cells except the clicked one
-	 */
-	fadeBasedOnClicks(clickedPos: Position): void {
-		const clickedKey = this.positionKey(clickedPos);
-		
-		for (const [key, cell] of this.cells) {
 			if (cell.clicked && cell.fadeCounter > 0) {
-				// Decrement fade counter for all squares except the one just clicked
-				if (key !== clickedKey) {
-					cell.fadeCounter--;
-				}
+				cell.fadeCounter--;
 				
-				// If fade counter reaches 0, reset the square completely
+				// If fade counter reaches 0, reset the cell completely
 				if (cell.fadeCounter === 0) {
-					cell.shade = 100;
-					cell.clicked = false;
-					cell.value = null;
+					this.initializeCell(cell.position);
 				} else {
-					// Set shade based on fade counter: 3=0%, 2=33%, 1=66%
-					cell.shade = (3 - cell.fadeCounter) * 33;
+					// Calculate shade based on fade counter
+					cell.shade = this.fadeValue(cell.fadeCounter);
 				}
 			}
 		}
@@ -138,15 +161,20 @@ export class GameBoard {
 	 * Reset all cells to initial state
 	 */
 	reset(): void {
-		this.initializeCells();
+		const positions = this.gridSystem.getAllPositions();
+		for (const position of positions) {
+			this.initializeCell(position);
+		}
 	}
 	
 	/**
-	 * Helper method to calculate fade value
+	 * Calculate shade value based on fade counter
+	 * Encapsulates fadeSteps logic for consistent fade progression
 	 */
-	private fadeValue(current: number, rate: number): number {
-		const newValue = current + rate;
-		return newValue < 100 ? newValue : 100;
+	private fadeValue(fadeCounter: number): number {
+		// Calculate fade progress: fadeSteps=4, fadeCounter=3 -> 25%, fadeCounter=2 -> 50%, etc.
+		const fadeProgress = (this.fadeSteps - fadeCounter) / this.fadeSteps;
+		return Math.round(fadeProgress * 100);
 	}
 	
 	/**
@@ -154,5 +182,12 @@ export class GameBoard {
 	 */
 	getGridSystem(): IGridSystem {
 		return this.gridSystem;
+	}
+	
+	/**
+	 * Get the fade steps configuration
+	 */
+	getFadeSteps(): number {
+		return this.fadeSteps;
 	}
 }
