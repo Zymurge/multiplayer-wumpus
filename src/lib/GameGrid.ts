@@ -1,94 +1,99 @@
-export interface GridSquare {
-	shade: number;
-	val: number | null;
-	clicked: boolean;
-	fadeCounter: number; // Counts down from 3 to 0 with each click elsewhere
-}
+import { SquareGrid } from './grid/SquareGrid.js';
+import { GameBoard } from './game/GameBoard.js';
+import type { Position } from './grid/IGridSystem.js';
 
-export interface WumpusPosition {
-	x: number;
-	y: number;
-}
+export interface WumpusPosition extends Position {}
 
 export class GameGrid {
-	x: number;
-	y: number;
-	grid: GridSquare[][] = [];
+	private gridSystem: SquareGrid;
+	private gameBoard: GameBoard;
 	wumpus: WumpusPosition;
 	last: { x: number; y: number; dist: number } | null;
 	clickCount: number;
 	
-	constructor(x: number, y: number) {
-		this.x = x;
-		this.y = y;
-		this.build();
+	constructor(x: number, y: number, fadeSteps: number = 3) {
+		this.gridSystem = new SquareGrid(x, y);
+		this.gameBoard = new GameBoard(this.gridSystem, fadeSteps);
 		this.wumpus = this.initWumpus();
 		this.last = null;
 		this.clickCount = 0;
 	}
 
-	build() {
-		console.log(`Building Grid ${this.x}x${this.y}`);
-		this.grid = Array.from(
-			{ length: this.y }, 
-			() => Array.from(
-				{ length: this.x },
-				() => ({ shade: 100, val: null, clicked: false, fadeCounter: 0 })
-			)
-		);
+	/**
+	 * Get a cell at the specified position
+	 * Delegates to GameBoard for cell state management
+	 */
+	get(x: number, y: number) {
+		return this.gameBoard.getCell({ x, y });
 	}
 
-	fade(rate: number) {
-		this.grid.forEach((row) => {
-			row.forEach((sq) => {
-				sq.shade = GameGrid.fadeVal(sq.shade, rate);
-			});  
-		});      
-	}
-	
-	get(x: number, y: number): GridSquare | null {
-		if (x >= 0 && x < this.x && y >= 0 && y < this.y) {
-			return this.grid[y][x];
-		}        
-		return null;
+	/**
+	 * Get all cells as 2D array for display
+	 * Delegates to GameBoard
+	 */
+	getCellsAs2DArray() {
+		return this.gameBoard.getCellsAs2DArray();
 	}
 
+	/**
+	 * Get grid dimensions
+	 */
+	getDimensions() {
+		return this.gridSystem.getDimensions();
+	}
+
+	/**
+	 * Initialize wumpus at random position
+	 * Uses SquareGrid for position generation
+	 */
 	initWumpus(): WumpusPosition {
-		const rr = Math.floor(Math.random() * this.y);
-		const rc = Math.floor(Math.random() * this.x);
-		return { x: rc, y: rr };
+		return this.gridSystem.getRandomPosition();
 	}
 
+	/**
+	 * Move wumpus based on distance between clicks
+	 * Uses SquareGrid for movement generation and validation
+	 */
 	moveWumpus(dist: number) {
 		const moves = Math.floor(dist / 2);
 		for (let i = moves; i > 0; i--) {
-			const dx = Math.floor(Math.random() * 3) - 1;
-			const dy = Math.floor(Math.random() * 3) - 1;
-			console.log(`-- ${i}: wumpus moving ${dx},${dy} from ${this.wumpus.x},${this.wumpus.y}`);
+			const movement = this.gridSystem.getRandomMovement();
+			console.log(`-- ${i}: wumpus moving ${movement.x},${movement.y} from ${this.wumpus.x},${this.wumpus.y}`);
 			
-			this.wumpus.x += dx;
-			this.wumpus.x = Math.max(0, Math.min(this.x - 1, this.wumpus.x));
-			this.wumpus.y += dy;
-			this.wumpus.y = Math.max(0, Math.min(this.y - 1, this.wumpus.y));
+			const newPosition = {
+				x: this.wumpus.x + movement.x,
+				y: this.wumpus.y + movement.y
+			};
+			
+			// Only update position if it's valid, otherwise stay in place
+			if (this.gridSystem.isValidPosition(newPosition)) {
+				this.wumpus = newPosition;
+			}
 		}
 	}
 
+	/**
+	 * Handle cell click - main game logic
+	 * Uses SquareGrid for distance calculation and GameBoard for cell state
+	 */
 	setClicked(x: number, y: number): { found: boolean; distance: number } {
-		const distance = Math.floor(Math.sqrt((this.wumpus.x - x) ** 2 + (this.wumpus.y - y) ** 2));
+		const clickPos = { x, y };
 		
-		// Decrement fade counter for all other squares first
-		this.fadeBasedOnClicks(x, y);
+		// Calculate distance using SquareGrid
+		const distance = this.gridSystem.distance(this.wumpus, clickPos);
 		
-		// Set clicked square to start fading from 3 clicks
-		this.grid[y][x].val = distance;
-		this.grid[y][x].shade = 0;
-		this.grid[y][x].clicked = true;
-		this.grid[y][x].fadeCounter = 3;
+		// Apply fade step to all clicked cells first
+		this.gameBoard.fadeStep();
+		
+		// Set clicked cell state using GameBoard
+		this.gameBoard.setCellClicked(clickPos, distance);
 		
 		const found = distance === 0;
+		this.clickCount++;
 		
 		if (this.last && !found) {
-			const moveDist = Math.floor(Math.sqrt((this.last.x - x) ** 2 + (this.last.y - y) ** 2));
+			// Calculate movement distance using SquareGrid
+			const moveDist = this.gridSystem.distance(this.last, clickPos);
 			this.last = { x, y, dist: moveDist };
 			console.log(`The distance between clicks is ${moveDist}`);
 			this.moveWumpus(moveDist);
@@ -100,31 +105,14 @@ export class GameGrid {
 		return { found, distance };
 	}
 
-	fadeBasedOnClicks(clickedX: number, clickedY: number) {
-		this.grid.forEach((row, y) => {
-			row.forEach((sq, x) => {
-				if (sq.clicked && sq.fadeCounter > 0) {
-					// Decrement fade counter for all squares except the one just clicked
-					if (x !== clickedX || y !== clickedY) {
-						sq.fadeCounter--;
-					}
-					
-					// If fade counter reaches 0, reset the square completely
-					if (sq.fadeCounter === 0) {
-						sq.shade = 100;
-						sq.clicked = false;
-						sq.val = null;
-					} else {
-						// Set shade based on fade counter: 3=0%, 2=33%, 1=66%
-						sq.shade = (3 - sq.fadeCounter) * 33;
-					}
-				}
-			});
-		});
-	}
-
-	static fadeVal(curr: number, rate: number): number {
-		const n = curr + rate;
-		return n < 100 ? n : 100;
+	/**
+	 * Reset the game state
+	 * Delegates to GameBoard for cell reset
+	 */
+	reset(): void {
+		this.gameBoard.reset();
+		this.wumpus = this.initWumpus();
+		this.last = null;
+		this.clickCount = 0;
 	}
 }

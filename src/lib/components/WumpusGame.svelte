@@ -50,10 +50,10 @@
 	$: displayGrid = game && gridUpdate >= 0 ? Array.from({ length: gridSize }, (_, y) => 
 		Array.from({ length: gridSize }, (_, x) => {
 			const square = game.get(x, y);
-			const isWumpus = square?.clicked && square.val === 0;
+			const isWumpus = square?.clicked && square.value === 0;
 			return {
-				value: square?.clicked && square.val !== null && square.shade < 100 && !isWumpus ? square.val.toString() : '',
-				color: isWumpus ? '#FFD700' : (square?.clicked ? getDistanceColor(square.val || 0, square.shade) : '#333'),
+				value: square?.clicked && square.value !== null && square.shade < 100 && !isWumpus ? square.value.toString() : '',
+				color: isWumpus ? '#FFD700' : (square?.clicked ? getDistanceColor(square.value || 0, square.shade) : '#333'),
 				showWumpus: isWumpus
 			};
 		})
@@ -101,7 +101,7 @@
 			console.log(`getSquareValue(${x},${y}): not clicked or no square`);
 			return '';
 		}
-		const value = square.val !== null ? square.val.toString() : '';
+		const value = square.value !== null ? square.value.toString() : '';
 		console.log(`getSquareValue(${x},${y}): returning "${value}"`);
 		return value;
 	}
