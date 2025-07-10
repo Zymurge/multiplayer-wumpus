@@ -276,49 +276,16 @@ describe('SquareGrid', () => {
 	});
 
 	describe('random movement generation', () => {
-		it('should generate movement vectors in range [-1, 1]', () => {
-			const grid = new SquareGrid(5, 5);
-			
-			for (let i = 0; i < 100; i++) {
-				const movement = grid.getRandomMovement();
-				expect(movement.x).toBeGreaterThanOrEqual(-1);
-				expect(movement.x).toBeLessThanOrEqual(1);
-				expect(movement.y).toBeGreaterThanOrEqual(-1);
-				expect(movement.y).toBeLessThanOrEqual(1);
-			}
+		const grid = new SquareGrid(5, 5);
+		const origin: Position = { x: 2, y: 2 };
+		const neighbor = grid.getRandomMovement(origin);
+
+		it('should generate movement within 1 cell, but can be the origin cell as well', () => {
+			expect(grid.distance(origin, neighbor)).toBeLessThanOrEqual(1);
 		});
 
-		it('should generate all possible movement combinations over many iterations', () => {
-			const grid = new SquareGrid(5, 5);
-			const movements = new Set<string>();
-			
-			for (let i = 0; i < 1000; i++) {
-				const movement = grid.getRandomMovement();
-				movements.add(`${movement.x},${movement.y}`);
-			}
-			
-			// Should have generated most of the 9 possible combinations
-			expect(movements.size).toBeGreaterThan(5);
+		it('should be a valid cell', () => {
+			expect(grid.isValidPosition(neighbor)).toBe(true);
 		});
-
-		it('should generate movement that can result in position outside grid', () => {
-			const grid = new SquareGrid(3, 3);
-			const cornerPos: Position = { x: 0, y: 0 };
-			let foundOutsideMovement = false;
-			
-			// Try many times to find a movement that would go outside
-			for (let i = 0; i < 100; i++) {
-				const movement = grid.getRandomMovement();
-				const newPos = { x: cornerPos.x + movement.x, y: cornerPos.y + movement.y };
-				
-				if (!grid.isValidPosition(newPos)) {
-					foundOutsideMovement = true;
-					break;
-				}
-			}
-			
-			// Should eventually find a movement that goes outside (like -1,-1 from 0,0)
-			expect(foundOutsideMovement).toBe(true);
-		});
-	});
+	});    
 });

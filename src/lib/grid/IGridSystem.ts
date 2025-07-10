@@ -61,4 +61,11 @@ export interface IGridSystem {
 	 * @returns Object containing grid dimensions
 	 */
 	getDimensions(): { width: number; height: number };
+
+	/**
+	 * Get a random neighbor from the set of all valid adjacent cells plus the origin
+	 * No move can be considered a random move afterall
+	 * @returns Cell position of the random move
+	 */
+	getRandomMovement(pos: Position): Position;
 }

@@ -57,18 +57,11 @@ export class GameGrid {
 	moveWumpus(dist: number) {
 		const moves = Math.floor(dist / 2);
 		for (let i = moves; i > 0; i--) {
-			const movement = this.gridSystem.getRandomMovement();
-			console.log(`-- ${i}: wumpus moving ${movement.x},${movement.y} from ${this.wumpus.x},${this.wumpus.y}`);
+			const movement = this.gridSystem.getRandomMovement(this.wumpus);
+			console.log(`-- ${i}: wumpus moving from ${this.wumpus.x},${this.wumpus.y} to ${movement.x},${movement.y}`);
 			
-			const newPosition = {
-				x: this.wumpus.x + movement.x,
-				y: this.wumpus.y + movement.y
-			};
-			
-			// Only update position if it's valid, otherwise stay in place
-			if (this.gridSystem.isValidPosition(newPosition)) {
-				this.wumpus = newPosition;
-			}
+			this.wumpus.x = movement.x;
+			this.wumpus.y = movement.y;
 		}
 	}
 

@@ -85,16 +85,17 @@ export class SquareGrid implements IGridSystem {
 	getDimensions(): { width: number; height: number } {
 		return { width: this.width, height: this.height };
 	}
-	
-	// TODO: rewrite random move to pick a random, valid and adjacent spot
-	/**
-	 * Generate a random movement direction for the wumpus
-	 * Returns a position offset (not absolute position)
-	 */
-	getRandomMovement(): Position {
-		return {
-			x: Math.floor(Math.random() * 3) - 1, // -1, 0, or 1
-			y: Math.floor(Math.random() * 3) - 1  // -1, 0, or 1
-		};
-	}
+
+    /** Gets a random adjacent square from the pool of all neighbors plus the square itself.
+     *  Will return a valid cell.
+     */
+    getRandomMovement(pos: Position): Position {
+        // Get the list of neighbors and add myself to it
+        let neighbors = [...this.getAdjacentPositions(pos), pos];
+
+        // Select a random position from the array
+        const randomOffset = Math.floor(Math.random() * neighbors.length);
+
+        return neighbors[randomOffset];
+    }
 }
