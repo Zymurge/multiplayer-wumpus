@@ -30,8 +30,6 @@ export class SquareGrid implements IGridSystem {
 		};
 	}
 	
-
-	
 	/**
 	 * Get all 8 adjacent positions (including diagonals)
 	 */
@@ -88,6 +86,7 @@ export class SquareGrid implements IGridSystem {
 		return { width: this.width, height: this.height };
 	}
 	
+	// TODO: rewrite random move to pick a random, valid and adjacent spot
 	/**
 	 * Generate a random movement direction for the wumpus
 	 * Returns a position offset (not absolute position)
