@@ -4,10 +4,14 @@
 	import { ColorFader } from '../ColorFader.js';
 	import GridSquare from './GridSquare.svelte';
 
-	export let gridSize = 8;
 	export const gameId = 'single-player';
+
+	let sliderGridSize = 10;
+	let currentGameGridSize = sliderGridSize;
+	let sliderFadeSteps = 4;
 	
 	let game: GameGrid;
+	let gameRunning = false;
 	let gameWon = false;
 	let moves = 0;
 
@@ -19,7 +23,7 @@
 	function getDistanceColor(distance: number, shade: number): string {
 		if (shade >= 100) return '#333'; // Fully faded
 		
-		const maxDistance = Math.sqrt(2) * gridSize; // Max possible distance
+		const maxDistance = Math.sqrt(2) * currentGameGridSize; // Max possible distance
 		const ratio = distance / maxDistance;
 		
 		let r, g, b;
@@ -47,8 +51,8 @@
 	}
 
 	// Create reactive display data
-	$: displayGrid = game && gridUpdate >= 0 ? Array.from({ length: gridSize }, (_, y) => 
-		Array.from({ length: gridSize }, (_, x) => {
+	$: displayGrid = game && gridUpdate >= 0 ? Array.from({ length: currentGameGridSize }, (_, y) => 
+		Array.from({ length: currentGameGridSize }, (_, x) => {
 			const square = game.get(x, y);
 			const isWumpus = square?.clicked && square.value === 0;
 			return {
@@ -64,9 +68,11 @@
 	});
 
 	function startNewGame() {
-		game = new GameGrid(gridSize, gridSize);
+		currentGameGridSize = sliderGridSize;
+		game = new GameGrid(currentGameGridSize, currentGameGridSize, sliderFadeSteps);
 		gameWon = false;
 		moves = 0;
+		gameRunning = true;
 		gridUpdate++; // Force reactivity to refresh display
 	}
 
@@ -81,31 +87,28 @@
 		
 		if (result.found) {
 			gameWon = true;
+			gameRunning = false;
 		}
 		
 		// Trigger reactivity
 		gridUpdate++;
 	}
 
-	function getSquareColor(x: number, y: number): string {
-		gridUpdate; // Access reactive variable to trigger updates
-		const square = game?.get(x, y);
-		if (!square || !square.clicked) return '#333';
-		return fader.color(square.shade);
-	}
-
-	function getSquareValue(x: number, y: number): string {
-		gridUpdate; // Access reactive variable to trigger updates
-		const square = game?.get(x, y);
-		if (!square || !square.clicked) {
-			console.log(`getSquareValue(${x},${y}): not clicked or no square`);
-			return '';
-		}
-		const value = square.value !== null ? square.value.toString() : '';
-		console.log(`getSquareValue(${x},${y}): returning "${value}"`);
-		return value;
-	}
 </script>
+
+<div class="controls">
+    <label>
+        Grid Size: {sliderGridSize}
+        <input type="range" min="4" max="20" bind:value={sliderGridSize} />
+    </label>
+    <label>
+        Results Lifetime: {sliderFadeSteps}
+        <input type="range" min="1" max="10" bind:value={sliderFadeSteps} />
+    </label>
+	<button on:click={startNewGame}>
+        {gameRunning ? 'Restart' : 'New Game'}
+    </button>
+</div>
 
 <div class="game-container">
 	<div class="game-info">
@@ -136,19 +139,37 @@
 		<div class="win-overlay">
 			<div class="win-message">
 				<p>🎉 You found the Wumpus in {moves} moves!</p>
-				<button on:click={startNewGame}>Play Again</button>
+  		        <button on:click={() => (gameWon = false)}>OK</button>
 			</div>
 		</div>
 	{/if}
 </div>
 
 <style>
+	.controls {
+		display: flex;
+		gap: 20px;
+		margin-top: 40px;
+		margin-bottom: 20px;
+		align-items: center;
+		justify-content: center;
+		flex-wrap: wrap;
+	}
+
+	.controls label {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		color: #b71f3b;
+		font-weight: bold;
+	}
+
 	.game-container {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		padding: 20px;
-		padding-top: 120px;
+		padding-top: 64px;
 		font-family: Arial, sans-serif;
 		position: relative;
 		min-height: 100vh;
@@ -161,24 +182,24 @@
 	}
 
 	.game-info h1 {
-		color: #333;
+		color: #0b460b;
 		margin-bottom: 10px;
 	}
 
 	.win-overlay {
 		position: absolute;
-		top: 20px;
+		top: 10px;
 		left: 50%;
 		transform: translateX(-50%);
 		width: 400px;
-		height: 160px;
+		height: 145px;
 		background-color: rgba(0, 0, 0, 0.9);
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		z-index: 10;
-		border-radius: 15px;
-		border: 2px solid #4CAF50;
+		border-radius: 14px;
+		border: 3px solid #66d169;
 	}
 
 	.win-message {
