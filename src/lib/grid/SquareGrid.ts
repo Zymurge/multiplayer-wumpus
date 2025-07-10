@@ -91,11 +91,11 @@ export class SquareGrid implements IGridSystem {
      */
     getRandomMovement(pos: Position): Position {
         // Get the list of neighbors and add myself to it
-        let neighbors = [...this.getAdjacentPositions(pos), pos];
+        let moveOptions = [...this.getAdjacentPositions(pos), pos];
 
         // Select a random position from the array
-        const randomOffset = Math.floor(Math.random() * neighbors.length);
+        const randomOffset = Math.floor(Math.random() * moveOptions.length);
 
-        return neighbors[randomOffset];
+        return moveOptions[randomOffset];
     }
 }

@@ -278,14 +278,14 @@ describe('SquareGrid', () => {
 	describe('random movement generation', () => {
 		const grid = new SquareGrid(5, 5);
 		const origin: Position = { x: 2, y: 2 };
-		const neighbor = grid.getRandomMovement(origin);
+		const destination = grid.getRandomMovement(origin);
 
 		it('should generate movement within 1 cell, but can be the origin cell as well', () => {
-			expect(grid.distance(origin, neighbor)).toBeLessThanOrEqual(1);
+			expect(grid.distance(origin, destination)).toBeLessThanOrEqual(1);
 		});
 
 		it('should be a valid cell', () => {
-			expect(grid.isValidPosition(neighbor)).toBe(true);
+			expect(grid.isValidPosition(destination)).toBe(true);
 		});
 	});    
 });
