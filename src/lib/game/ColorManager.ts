@@ -1,3 +1,6 @@
+// Re-export centralized colors
+export { COLORS } from './colors.js';
+
 export class ColorFader {
 	stR: number;
 	stG: number;
@@ -23,9 +26,11 @@ export class ColorFader {
 	}
 }
 
+import { COLORS as CENTRALIZED_COLORS } from './colors.js';
+
 // Get color based on distance (0=green, half board=yellow, max=red)
 export function getDistanceColor(distance: number, shade: number, maxDistance: number): string {
-	if (shade >= 100) return '#333'; // Fully faded
+	if (shade >= 100) return CENTRALIZED_COLORS.unclicked; // Fully faded
 	
 	const ratio = distance / maxDistance;
 	

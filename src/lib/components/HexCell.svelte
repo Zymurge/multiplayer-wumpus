@@ -2,22 +2,26 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import WumpusSprite from './WumpusSprite.svelte';
+  import { COLORS } from '../game/colors.js';
 
   export let x: number;
   export let y: number;
   export let value: string = '';
-  export let backgroundColor: string = '#333';
+  export let backgroundColor: string = COLORS.defaultHexBackground;
   export let showWumpus: boolean = false;
   export let size: number = 80;
 
   const dispatch = createEventDispatcher<{ click: { x: number; y: number } }>();
 
   // hex metrics for pointy-top even-q
-  //const height = Math.sqrt(3) / 2 * size;
-  const height = 1.03 * size;
-  const padding = 2
-  $: left = x * size + (y % 2 === 1 ? size * 0.5 : 0) + x * padding;
-  $: top  = y * (height * 0.73) + (y * padding);
+  //const height = 2 * size / Math.sqrt(3);
+  const height = 1.15 * size;
+  const xPad = 0
+  const yPad = 2; // slight vertical padding for better click area
+
+  // Calculate the position based on hex grid layout
+  $: left = x * size + (y % 2 === 1 ? size * 0.5 : 0) + x * xPad;
+  $: top  = y * (height * 0.75) + (y * yPad);
 
   function handleClick() {
     dispatch('click', { x, y });
@@ -47,9 +51,6 @@
 <style>
   button.hex-cell {
     position: absolute;
-    box-sizing: border-box;        /* include borders in width/height */
-    border: 2px solid #b5e6cd;        /* visualize the edges */
-    padding: 0;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -69,7 +70,7 @@
 
   .value {
     font-weight: bold;
-    color: #333;
+    color: var(--text-primary, #333);
     user-select: none;
   }
 </style>

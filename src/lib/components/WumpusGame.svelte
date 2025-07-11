@@ -3,7 +3,14 @@
   import { onMount } from 'svelte';
   import { WumpusGame } from '$lib/game/WumpusGame';
   import HexCell from '$lib/components/HexCell.svelte';
+  import { COLORS, mergeTheme, type ColorTheme } from '../game/colors.js';
   import { ColorFader, getDistanceColor } from '../game/ColorManager.js';
+
+  // Props for customizing colors
+  export let colorTheme: ColorTheme = {};
+
+  // Merge theme with defaults
+  $: colors = mergeTheme(colorTheme);
 
   let sliderGridSize = 5;
   let currentGameGridSize = sliderGridSize;
@@ -16,14 +23,16 @@
 
   let game: WumpusGame;
   let moves = 0;
+  let gameRunning = false;
   let gameWon = false;
+  // Used for reactivity in the grid display
   let gridUpdate = 0;
 
   const fader = new ColorFader(0, 255, 0, 255, 0, 0);
   const size = 80;
-  const padding = 2;
+  const padding = 0;
 
-  $: if (game) {
+  $: if (game && gridUpdate >= 0) {
     const { width, height } = game.getDimensions();
     const max = game.getMaxDistance();
 
@@ -40,10 +49,10 @@
           value: !isWumpus && clicked ? dist.toString() : '',
           // Wumpus gold or distance‐fade color
           color: isWumpus
-            ? '#FFD700'
+            ? colors.wumpus
             : clicked
               ? getDistanceColor(dist, shade, max)
-              : '#333',
+              : colors.unclicked,
           showWumpus: isWumpus
         };
       })
@@ -57,20 +66,40 @@
     game = new WumpusGame(currentGameGridSize, currentGameGridSize, sliderFadeSteps);
     moves = 0;
     gameWon = false;
+	gameRunning = true;
     gridUpdate++;
   }
 
   function handleClick(x: number, y: number) {
-    if (gameWon) return;
+    if (gameWon || !game) return;
+
     const res = game.setClicked(x, y);
     moves++;
-    if (res.found) gameWon = true;
-    gridUpdate++;
-  }
+	console.log(`Clicked ${x},${y}: distance=${res.distance}, found=${res.found}`);
+	
+
+    if (res.found) {
+	  gameWon = true;
+	  gameRunning = false;
+	}
+
+	// Trigger reactivity
+	gridUpdate++;
+}
 </script>
 
 <div class="controls">
-  <!-- sliders and buttons -->
+    <label>
+        Grid Size: {sliderGridSize}
+        <input type="range" min="4" max="20" bind:value={sliderGridSize} />
+    </label>
+    <label>
+        Results Lifetime: {sliderFadeSteps}
+        <input type="range" min="1" max="10" bind:value={sliderFadeSteps} />
+    </label>
+	<button on:click={startNewGame}>
+        {gameRunning ? 'Restart' : 'New Game'}
+    </button>
 </div>
 
 <div
@@ -81,6 +110,11 @@
 	  { ( size + padding ) * ( currentGameGridSize + 0.5 ) }px;
     height:
       {currentGameGridSize * size + size / 2}px;
+    --grid-background: {colors.gridBackground};
+    --wumpus-color: {colors.wumpus};
+    --unclicked-color: {colors.unclicked};
+    --hex-border: {colors.hexBorder};
+    --text-primary: {colors.textPrimary};
   "
 >
   {#each displayGrid as row, y}
@@ -108,9 +142,25 @@
 <style>
   .hex-grid {
     margin: 0 auto;
-    background: #666;
+    background: var(--grid-background, #6b1f1f);
     border-radius: 8px;
     overflow: visible;
   }
-  /* ... other styles ... */
+/* ... other styles ... */
+	.win-overlay {
+		position: absolute;
+		top: 0; left: 0; right: 0; bottom: 0;
+		background: rgba(0,0,0,0.7);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		color: #fff;
+		font-size: 2rem;
+		z-index: 10;
+	}
+
+	button:hover {
+		background: #45a049;
+	}
 </style>

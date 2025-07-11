@@ -103,15 +103,15 @@ export class GameGrid {
 		const found = distance === 0;
 		this.clickCount++;
 		
+		// Capture this clicks to track previous clicks and all Wumpus to move based on distance
+		// between last click and this click
 		if (this.last && !found) {
 			// Calculate movement distance using gridSystem
 			const moveDist = this.gridSystem.distance(this.last, clickPos);
 			this.last = { x, y, dist: moveDist };
-			console.log(`The distance between clicks is ${moveDist}`);
 			this.moveWumpus(moveDist);
 		} else {
 			this.last = { x, y, dist: 0 };
-			console.log('First move, no previous distance');
 		}
 		
 		return { found, distance };
