@@ -1,5 +1,5 @@
 import { HexGrid } from '../grid/HexGrid.js';
-import { BoardState } from './BoardState.js';
+import { BoardState, type GridCell } from './BoardState.js';
 import type { Position } from '../grid/IGridSystem.js';
 
 type WumpusPosition = Position;
@@ -11,6 +11,7 @@ type WumpusPosition = Position;
  *   • Implements movement rules (getRandomMovement)
  *   • Exposes get(), getCellsAs2DArray(), setClicked(), reset()
  */
+// TODO: Rename this to WumpusGame
 export class GameGrid {
 	private gridSystem: HexGrid;
 	private boardState: BoardState;
@@ -30,8 +31,12 @@ export class GameGrid {
 	 * Get a cell at the specified position
 	 * Delegates to BoardState for cell state management
 	 */
-	get(x: number, y: number) {
-		return this.boardState.getCell({ x, y });
+	get(x: number, y: number): GridCell {
+		const cell = this.boardState.getCell({ x, y });
+		if( !cell ) {
+			throw new Error(`Attempt to fetch invalid cell from ${x}, ${y}`)
+		}
+		return cell;
 	}
 
 	/**
@@ -47,6 +52,13 @@ export class GameGrid {
 	 */
 	getDimensions() {
 		return this.gridSystem.getDimensions();
+	}
+
+	/**
+	 * Get max possible distance on this grid
+	 */
+	getMaxDistance() {
+		return this.gridSystem.maxDistance()
 	}
 
 	/**
@@ -115,4 +127,7 @@ export class GameGrid {
 		this.last = null;
 		this.clickCount = 0;
 	}
-}
+};
+
+// TODO: remove temp bridge for name change
+export { GameGrid as WumpusGame };
