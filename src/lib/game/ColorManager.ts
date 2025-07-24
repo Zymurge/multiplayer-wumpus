@@ -1,6 +1,13 @@
 // Re-export centralized colors
 export { COLORS } from './colors.js';
 
+/* ColorFader class to handle color transitions
+ * This class allows you to create a color fader that transitions between two RGB colors.
+ * It provides a method to get the interpolated color based on a fade amount (0-100).
+ * 
+ * Start and end RGB values must each be between 0-255. End values must be less than or equal to
+ * start values for the fade to work correctly -- things get darker as values approach 0.
+ */
 export class ColorFader {
 	stR: number;
 	stG: number;
@@ -9,19 +16,49 @@ export class ColorFader {
 	enG: number;
 	enB: number;
 
+	/**
+	 * Create a ColorFader instance. Enforces that start and end RGB values are between 0-255 and that
+	 * end values are less than or equal to start values. Rounds input RGB values to the nearest integer.
+	 * @param {number} sr - Start red value (0-255).
+	 * @param {number} sg - Start green value (0-255).
+	 * @param {number} sb - Start blue value (0-255).
+	 * @param {number} er - End red value (0-255).
+	 * @param {number} eg - End green value (0-255).
+	 * @param {number} eb - End blue value (0-255).
+	 * @throws {Error} If any RGB value is out of range or if end values are greater than start values.
+	 */
 	constructor(sr: number, sg: number, sb: number, er: number, eg: number, eb: number) {
-		this.stR = sr;
-		this.stG = sg;
-		this.stB = sb;
-		this.enR = er;
-		this.enG = eg;
-		this.enB = eb;
+		this.stR = Math.round(sr);
+		this.stG = Math.round(sg);
+		this.stB = Math.round(sb);
+		this.enR = Math.round(er);
+		this.enG = Math.round(eg);
+		this.enB = Math.round(eb);
+
+		// validated ranges
+		if (this.stR < 0 || this.stR > 255 || this.stG < 0 || this.stG > 255 || this.stB < 0 || this.stB > 255 ||
+			this.enR < 0 || this.enR > 255 || this.enG < 0 || this.enG > 255 || this.enB < 0 || this.enB > 255) {
+			throw new Error('RGB values must be between 0-255');
+		}
+
+		// validate end values are less than or equal to start values
+		if (this.enR > this.stR || this.enG > this.stG || this.enB > this.stB) {
+			throw new Error('End RGB values must be less than or equal to start RGB values');
+		}
 	}
 
-	color(shade: number): string {
-		const r = this.enR + (this.enR - this.stR) * shade / 100;
-		const g = this.enG + (this.enG - this.stG) * shade / 100;
-		const b = this.enB + (this.enB - this.stB) * shade / 100;
+	/**
+	 * Get the color for a given fadeAmount (0-100):
+	 *     0 returns start color
+	 *   100 returns end color.
+	 *  1-99 Interpolates between start and end colors based on the shade percentage.
+	 * @param {number} fadeAmount - The percentage (0-100) to fade from start to end.
+	 * @returns {string} The RGB color string.
+	 */
+	color(fadeAmount: number): string {
+		const r = this.stR - (this.stR - this.enR) * fadeAmount / 100;
+		const g = this.stG - (this.stG - this.enG) * fadeAmount / 100;
+		const b = this.stB - (this.stB - this.enB) * fadeAmount / 100;
 		return `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
 	}
 }
@@ -48,12 +85,6 @@ export function getDistanceColor(distance: number, shade: number, maxDistance: n
 		g = Math.round(255 * (1 - t));
 		b = 0;
 	}
-	
-	// Apply fade (make darker as shade increases)
-	const fadeMultiplier = (100 - shade) / 100;
-	r = Math.round(r * fadeMultiplier);
-	g = Math.round(g * fadeMultiplier);
-	b = Math.round(b * fadeMultiplier);
 	
 	return `rgb(${r},${g},${b})`;
 }

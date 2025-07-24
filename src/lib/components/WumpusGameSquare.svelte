@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { GameGrid } from '../game/WumpusGame.js';
-	import { ColorFader } from '../game/ColorFader.js';
+	import { ColorFader } from '../game/ColorManager.js';
 	import GridSquare from './GridSquare.svelte';
 
 	export const gameId = 'single-player';
@@ -17,7 +17,7 @@
 
 	let gridUpdate = 0; // Force reactivity
 	
-	const fader = new ColorFader(0, 255, 0, 255, 0, 0); // Green to Red gradient
+	// const fader = new ColorFader(0, 255, 0, 255, 0, 0); // Green to Red gradient
 	
 	// Get color based on distance (0=green, half board=yellow, max=red)
 	function getDistanceColor(distance: number, shade: number): string {

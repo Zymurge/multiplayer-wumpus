@@ -28,8 +28,8 @@
   // Used for reactivity in the grid display
   let gridUpdate = 0;
 
-  const fader = new ColorFader(0, 255, 0, 255, 0, 0);
-  const size = 80;
+  // const fader = new ColorFader(0, 255, 0, 255, 0, 0);
+  const size = 60;
   const padding = 0;
 
   $: if (game && gridUpdate >= 0) {
