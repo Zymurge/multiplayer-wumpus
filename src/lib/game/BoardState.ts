@@ -1,14 +1,36 @@
 import type { IGridSystem, Position } from '../grid/IGridSystem.js';
+import { ColorFader, COLORS, getDistanceColor } from './ColorManager.js';
 
 /**
  * Represents the state of a single cell in the game board
  */
-export interface GridCell {
+export class GridCell {
 	position: Position;
-	shade: number;
 	value: number | null;
-	clicked: boolean;
-	fadeCounter: number;
+	clicked: boolean = false;
+	/**
+	 * Color manager for this cell, used to handle color fading
+	 * @type {ColorFader | null}
+	 */
+	fader: ColorFader | null = null;
+
+	constructor(pos: Position) {
+		this.position = pos;
+		this.value = null;
+	}
+
+	public shade() {
+		return this.fader?.color;
+	}
+
+	public setColorManager(
+		startRGB:  string,
+		endRGB:    string,
+		fadeSteps: number
+	) {
+		const fader = new ColorFader( startRGB, endRGB, fadeSteps );
+		return fader;
+	}
 }
 
 /**
@@ -45,10 +67,9 @@ export class BoardState {
 	initializeCell(pos: Position): void {
 		const cell = this.getCell(pos);
 		if (cell) {
-			cell.shade = 100;
 			cell.value = null;
 			cell.clicked = false;
-			cell.fadeCounter = 0;
+			cell.fader = null; // Reset color manager
 		}
 	}
 
@@ -59,13 +80,7 @@ export class BoardState {
 		const positions = this.gridSystem.getAllPositions();
 		
 		for (const position of positions) {
-			const cell: GridCell = {
-				position,
-				shade: 100,
-				value: null,
-				clicked: false,
-				fadeCounter: 0
-			};
+			const cell = new GridCell(position);
 			this.cells.set(this.positionKey(position), cell);
 		}
 	}
@@ -101,13 +116,14 @@ export class BoardState {
 		const cell = this.getCell(pos);
 		if (cell) {
 			cell.value = value;
-			cell.shade = 0;
 			cell.clicked = true;
-			cell.fadeCounter = this.fadeSteps;
+			cell.setColorManager(
+				getDistanceColor(value, this.gridSystem.maxDistance()), 
+				COLORS.unclicked, 
+				this.getFadeSteps()
+			);
 		}
 	}
-	
-
 	
 	/**
 	 * Apply fade step to all clicked cells
@@ -115,16 +131,9 @@ export class BoardState {
 	 */
 	fadeStep(): void {
 		for (const cell of this.cells.values()) {
-			if (cell.clicked && cell.fadeCounter > 0) {
-				cell.fadeCounter--;
-				
-				// If fade counter reaches 0, reset the cell completely
-				if (cell.fadeCounter === 0) {
-					this.initializeCell(cell.position);
-				} else {
-					// Calculate shade based on fade counter
-					cell.shade = this.fadeValue(cell.fadeCounter);
-				}
+			if (cell.clicked && cell.fader != null) {
+				cell.fader.next();
+				//cell.shade = cell.fader.color();
 			}
 		}
 	}
@@ -165,16 +174,6 @@ export class BoardState {
 		for (const position of positions) {
 			this.initializeCell(position);
 		}
-	}
-	
-	/**
-	 * Calculate shade value based on fade counter
-	 * Encapsulates fadeSteps logic for consistent fade progression
-	 */
-	private fadeValue(fadeCounter: number): number {
-		// Calculate fade progress: fadeSteps=4, fadeCounter=3 -> 25%, fadeCounter=2 -> 50%, etc.
-		const fadeProgress = (this.fadeSteps - fadeCounter) / this.fadeSteps;
-		return Math.round(fadeProgress * 100);
 	}
 	
 	/**

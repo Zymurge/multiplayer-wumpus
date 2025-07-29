@@ -15,44 +15,36 @@
   let sliderGridSize = 5;
   let currentGameGridSize = sliderGridSize;
   let sliderFadeSteps = 4;
+  let game: WumpusGame | undefined;
   let displayGrid: {
-	  value: string;
-	  color: string;
-	  showWumpus: boolean;
-	}[][] = [];
+    value: string;
+    color: string;
+    showWumpus: boolean;
+  }[][] = [];
 
-  let game: WumpusGame;
   let moves = 0;
   let gameRunning = false;
   let gameWon = false;
   // Used for reactivity in the grid display
   let gridUpdate = 0;
 
-  // const fader = new ColorFader(0, 255, 0, 255, 0, 0);
   const size = 60;
   const padding = 0;
 
   $: if (game && gridUpdate >= 0) {
     const { width, height } = game.getDimensions();
-    const max = game.getMaxDistance();
 
     displayGrid = Array.from({ length: height }, (_, y) =>
       Array.from({ length: width }, (_, x) => {
-        const cell = game.get(x, y);
+        const cell = game!.get(x, y);
+        // Assume cell.setColorManager is called by BoardState internally
+        // and cell.colorManager provides the correct color for this cell
         const clicked = cell.clicked;
-		const isWumpus = clicked && cell.value === 0;
-        const dist = cell.value ?? 0;
-        const shade = cell.shade;
+        const isWumpus = clicked && cell.value === 0;
 
         return {
-          // distance string only when clicked and not Wumpus
-          value: !isWumpus && clicked ? dist.toString() : '',
-          // Wumpus gold or distance‐fade color
-          color: isWumpus
-            ? colors.wumpus
-            : clicked
-              ? getDistanceColor(dist, shade, max)
-              : colors.unclicked,
+          value: !isWumpus && clicked ? cell.value?.toString() ?? '' : '',
+          color: cell.fader?.color() ?? '', // color logic handled by ColorFader/ColorManager
           showWumpus: isWumpus
         };
       })
@@ -62,11 +54,11 @@
   onMount(() => startNewGame());
 
   function startNewGame() {
-	currentGameGridSize = sliderGridSize;
+	  currentGameGridSize = sliderGridSize;
     game = new WumpusGame(currentGameGridSize, currentGameGridSize, sliderFadeSteps);
     moves = 0;
     gameWon = false;
-	gameRunning = true;
+	  gameRunning = true;
     gridUpdate++;
   }
 
@@ -75,13 +67,12 @@
 
     const res = game.setClicked(x, y);
     moves++;
-	console.log(`Clicked ${x},${y}: distance=${res.distance}, found=${res.found}`);
+	  console.log(`Clicked ${x},${y}: distance=${res.distance}, found=${res.found}`);
 	
-
     if (res.found) {
-	  gameWon = true;
-	  gameRunning = false;
-	}
+      gameWon = true;
+      gameRunning = false;
+    }
 
 	// Trigger reactivity
 	gridUpdate++;
