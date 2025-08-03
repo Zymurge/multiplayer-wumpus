@@ -82,6 +82,12 @@ export class BoardState {
 		
 		for (const position of positions) {
 			const cell = new GridCell(position);
+			// Cell should get its initial color from a default color manager
+			cell.setColorManager(
+				COLORS.unclicked,
+				COLORS.unclicked,
+				0
+			);
 			this.cells.set(this.positionKey(position), cell);
 		}
 	}
@@ -136,7 +142,11 @@ export class BoardState {
 		for (const cell of this.cells.values()) {
 			if (cell.clicked && cell.fader != null) {
 				cell.fader.next();
-				//cell.shade = cell.fader.color();
+				// If fader has reached the end, reset the cell value
+				if (cell.fader.currStep >= cell.fader.steps) {
+					cell.value = null; // Reset value after fading
+					cell.clicked = false; // Mark as unclicked
+				}
 			}
 		}
 	}
