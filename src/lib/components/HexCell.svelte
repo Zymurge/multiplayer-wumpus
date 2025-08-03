@@ -7,7 +7,7 @@
   export let x: number;
   export let y: number;
   export let value: string = '';
-  export let backgroundColor: string = COLORS.defaultHexBackground;
+  export let backgroundColor: string = COLORS.unclicked;
   export let showWumpus: boolean = false;
   export let size: number = 80;
 
@@ -30,13 +30,11 @@
 
 <button
   class="hex-cell"
-  style="
-    width: {size}px;
-    height: {height}px;
-    left: {left}px;
-    top: {top}px;
-    background-color: {backgroundColor};
-  "
+  style:width="{size}px"
+  style:height="{height}px"
+  style:left="{left}px"
+  style:top="{top}px"
+  style:background-color={backgroundColor}
   on:click={handleClick}
 >
   {#if showWumpus}

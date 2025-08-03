@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { GameGrid } from '../game/WumpusGame.js';
-	import { ColorFader } from '../game/ColorManager.js';
+	import { GameGrid } from '../../../game/WumpusGame.js';
+	import { ColorFader } from '../../../game/ColorManager.js';
 	import GridSquare from './GridSquare.svelte';
 
 	export const gameId = 'single-player';

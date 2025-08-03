@@ -6,14 +6,14 @@
 export const COLORS = {
   // Game colors
   wumpus: '#FFD700',           // Gold for wumpus
-  unclicked: '#333',           // Dark gray for unclicked cells
-  gridBackground: '#666',      // Gray for grid background
+  unclicked: '#C0C0C0',           // Dark gray for unclicked cells
+  gridBackground: '#606060',      // Gray for grid background
   
   // UI colors
   success: '#4CAF50',          // Green for success states
   successHover: '#45a049',     // Darker green for hover
-  border: '#999',              // Gray for borders
-  borderHighlight: '#fff',     // White for highlighted borders
+  border: '#999999',              // Gray for borders
+  borderHighlight: '#ffff00',     // White for highlighted borders
   
   // Text colors
   textPrimary: '#333',         // Dark gray for primary text
@@ -35,7 +35,7 @@ export const COLORS = {
   
   // Default fallbacks
   defaultHexBackground: '#AA4040',  // Default hex cell color
-  defaultCellBackground: '#333',    // Default grid cell color
+  defaultCellBackground: '#606060',    // Default grid cell color
 } as const;
 
 /**

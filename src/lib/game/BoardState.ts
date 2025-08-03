@@ -28,8 +28,9 @@ export class GridCell {
 		endRGB:    string,
 		fadeSteps: number
 	) {
+		console.log(`setColorManager() for cell at ${this.position.x},${this.position.y} with startRGB=${startRGB}, endRGB=${endRGB}, fadeSteps=${fadeSteps}`);
 		const fader = new ColorFader( startRGB, endRGB, fadeSteps );
-		return fader;
+		this.fader = fader;
 	}
 }
 
@@ -103,7 +104,9 @@ export class BoardState {
 	 * Set a cell's clicked state and value
 	 */
 	setCellClicked(pos: Position, value: number): void {
+		console.log(`setCellClicked() at ${pos.x},${pos.y} to value ${value}`);
 		// Validate value is not negative
+
 		if (value < 0) {
 			throw new Error('Cell value cannot be negative');
 		}

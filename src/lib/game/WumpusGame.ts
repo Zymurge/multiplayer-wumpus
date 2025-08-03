@@ -58,6 +58,7 @@ export class GameGrid {
 	 * Get max possible distance on this grid
 	 */
 	getMaxDistance() {
+		// TODO: call once and cache result, so long as grid dimensions don't change
 		return this.gridSystem.maxDistance()
 	}
 

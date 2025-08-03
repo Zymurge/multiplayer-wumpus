@@ -90,9 +90,9 @@ export class ColorFader {
 import { COLORS as CENTRALIZED_COLORS } from './colors.js';
 
 // Get color based on distance (0=green, half board=yellow, max=red)
+// Returns the color as a hex string
 export function getDistanceColor(distance: number, maxDistance: number): string {	
 	const ratio = distance / maxDistance;
-	
 	let r, g, b;
 	if (ratio < 0.5) {
 		// Green to Yellow (0 to 0.5)
@@ -107,6 +107,6 @@ export function getDistanceColor(distance: number, maxDistance: number): string 
 		g = Math.round(255 * (1 - t));
 		b = 0;
 	}
-	
-	return `rgb(${r},${g},${b})`;
+	// Use chroma-js to convert RGB to hex
+	return chroma.rgb(r, g, b).hex();
 }
