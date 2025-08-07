@@ -1,32 +1,105 @@
 import { describe, it, expect } from 'vitest';
 import { BoardState } from './BoardState.js';
-import { SquareGrid } from '../grid/SquareGrid.js';
-import type { Position } from '../grid/IGridSystem.js';
+import type { IGridSystem, Position } from '../grid/IGridSystem.js';
+
+const StubGridCell = {
+	position: { x: 0, y: 0 },
+	shade: 100,
+	value: null,
+	clicked: false,
+	fadeCounter: 0,
+	fader: undefined
+};
+
+class StubGrid implements IGridSystem {
+	width: number;
+	height: number;
+
+	constructor(width: number, height: number) {
+		this.width = width;
+		this.height = height;
+	}
+
+	distanceFake = 0;
+	distance(a: Position, b: Position): number {
+		// Manhattan distance stub
+		return this.distanceFake;
+	}
+
+	getAdjacentPositions(pos: Position): Position[] {
+		// Return 4-way adjacent positions
+		const adj: Position[] = [];
+		const dirs = [
+			{ x: 0, y: -1 },
+			{ x: 1, y: 0 },
+			{ x: 0, y: 1 },
+			{ x: -1, y: 0 }
+		];
+		for (const d of dirs) {
+			const np = { x: pos.x + d.x, y: pos.y + d.y };
+			if (this.isValidPosition(np)) adj.push(np);
+		}
+		return adj;
+	}
+
+	getAllPositions(): Position[] {
+		const positions: Position[] = [];
+		for (let y = 0; y < this.height; y++) {
+			for (let x = 0; x < this.width; x++) {
+				positions.push({ x, y });
+			}
+		}
+		return positions;
+	}
+
+	getDimensions(): { width: number; height: number } {
+		return { width: this.width, height: this.height };
+	}
+	
+	randomPositionFake = { x: 0, y: 0 };
+	getRandomMovement(pos: Position): Position {
+		return this.randomPositionFake;
+	}
+
+	getRandomPosition(): Position {
+		return this.randomPositionFake;
+	}
+
+	validPositionFake = true;
+	isValidPosition(pos: Position): boolean {
+		return this.validPositionFake;
+	}
+
+	maxDistanceFake = 5;
+	maxDistance(): number {
+		return this.maxDistanceFake;
+	}
+}
 
 describe('BoardState', () => {
 	describe('constructor and initialization', () => {
 		it('should validate that dimensions are positive integers', () => {
-			expect(() => new BoardState(new SquareGrid(0, 5))).toThrow('Grid dimensions must be positive integers');
-			expect(() => new BoardState(new SquareGrid(5, 0))).toThrow('Grid dimensions must be positive integers');
-			expect(() => new BoardState(new SquareGrid(-1, 5))).toThrow('Grid dimensions must be positive integers');
-			expect(() => new BoardState(new SquareGrid(5, -1))).toThrow('Grid dimensions must be positive integers');
+			expect(() => new BoardState(new StubGrid(0, 5))).toThrow('Grid dimensions must be positive integers');
+			expect(() => new BoardState(new StubGrid(5, 0))).toThrow('Grid dimensions must be positive integers');
+			expect(() => new BoardState(new StubGrid(-1, 5))).toThrow('Grid dimensions must be positive integers');
+			expect(() => new BoardState(new StubGrid(5, -1))).toThrow('Grid dimensions must be positive integers');
 		});
 
 		it('should enforce maximum grid size', () => {
 			const maxSize = 24;
-			expect(() => new BoardState(new SquareGrid(25, 5))).toThrow(`Grid dimensions cannot exceed ${maxSize}`);
-			expect(() => new BoardState(new SquareGrid(5, 25))).toThrow(`Grid dimensions cannot exceed ${maxSize}`);
-			expect(() => new BoardState(new SquareGrid(25, 25))).toThrow(`Grid dimensions cannot exceed ${maxSize}`);
+			expect(() => new BoardState(new StubGrid(25, 5))).toThrow(`Grid dimensions cannot exceed ${maxSize}`);
+			expect(() => new BoardState(new StubGrid(5, 25))).toThrow(`Grid dimensions cannot exceed ${maxSize}`);
+			expect(() => new BoardState(new StubGrid(25, 25))).toThrow(`Grid dimensions cannot exceed ${maxSize}`);
 		});
 
 		it('should accept valid dimensions within limits', () => {
-			expect(() => new BoardState(new SquareGrid(1, 1))).not.toThrow();
-			expect(() => new BoardState(new SquareGrid(24, 24))).not.toThrow();
-			expect(() => new BoardState(new SquareGrid(10, 15))).not.toThrow();
+			expect(() => new BoardState(new StubGrid(1, 1))).not.toThrow();
+			expect(() => new BoardState(new StubGrid(24, 24))).not.toThrow();
+			expect(() => new BoardState(new StubGrid(10, 15))).not.toThrow();
 		});
 
 		it('should take fadeSteps parameter with default of 3', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const defaultBoard = new BoardState(grid);
 			const customBoard = new BoardState(grid, 5);
 			
@@ -36,7 +109,7 @@ describe('BoardState', () => {
 		});
 
 		it('should validate that fadeSteps are correctly applied in initialization using non-default value', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid, 7);
 			const pos: Position = { x: 1, y: 1 };
 			
@@ -44,11 +117,11 @@ describe('BoardState', () => {
 			board.setCellClicked(pos, 5);
 			const cell = board.getCell(pos);
 			
-			expect(cell!.fadeCounter).toBe(7);
+			expect(cell!.fader?.steps).toBe(7);
 		});
 
 		it('should initialize all cells to default state', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid);
 			
 			const positions = grid.getAllPositions();
@@ -64,7 +137,7 @@ describe('BoardState', () => {
 		});
 
 		it('should store reference to grid system', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid);
 			
 			expect(board.getGridSystem()).toBe(grid);
@@ -73,7 +146,7 @@ describe('BoardState', () => {
 
 	describe('cell access', () => {
 		it('should get cell at valid position', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid);
 			const pos: Position = { x: 1, y: 1 };
 			
@@ -87,7 +160,7 @@ describe('BoardState', () => {
 		});
 
 		it('should return null for invalid position', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid);
 			
 			expect(board.getCell({ x: 5, y: 5 })).toBeNull();
@@ -96,7 +169,7 @@ describe('BoardState', () => {
 		});
 
 		it('should be agnostic to cell settings and validate settings are persisted', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid);
 			const pos: Position = { x: 1, y: 1 };
 			
@@ -116,7 +189,7 @@ describe('BoardState', () => {
 
 	describe('cell clicking', () => {
 		it('should set cell as clicked with correct values', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid);
 			const pos: Position = { x: 1, y: 1 };
 			
@@ -130,7 +203,7 @@ describe('BoardState', () => {
 		});
 
 		it('should not accept negative values', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid);
 			const pos: Position = { x: 1, y: 1 };
 			
@@ -139,7 +212,7 @@ describe('BoardState', () => {
 		});
 
 		it('should error on illegal coordinates', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid);
 			
 			expect(() => board.setCellClicked({ x: 5, y: 5 }, 3)).toThrow('Invalid position');
@@ -148,7 +221,7 @@ describe('BoardState', () => {
 		});
 
 		it('should not affect other cells when setting one clicked', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid);
 			const clickedPos: Position = { x: 1, y: 1 };
 			const otherPos: Position = { x: 0, y: 0 };
@@ -163,7 +236,7 @@ describe('BoardState', () => {
 		});
 
 		it('should respect custom fadeSteps value', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid, 5);
 			const pos: Position = { x: 1, y: 1 };
 			
@@ -178,7 +251,7 @@ describe('BoardState', () => {
 
 	describe('fade step', () => {
 		it('should fade all clicked cells by fade increment', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid, 4); // fadeSteps = 4
 			
 			// Click some cells
@@ -200,7 +273,7 @@ describe('BoardState', () => {
 		});
 
 		it('should reset cell when fade counter reaches zero', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid, 1); // fadeSteps = 1
 			const pos: Position = { x: 1, y: 1 };
 			
@@ -217,7 +290,7 @@ describe('BoardState', () => {
 		});
 
 		it('should calculate correct shade based on fade counter', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid, 4); // fadeSteps = 4
 			const pos: Position = { x: 1, y: 1 };
 			
@@ -235,7 +308,7 @@ describe('BoardState', () => {
 		});
 
 		it('should not affect unclicked cells', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid);
 			const clickedPos: Position = { x: 1, y: 1 };
 			const unclickedPos: Position = { x: 0, y: 0 };
@@ -252,7 +325,7 @@ describe('BoardState', () => {
 
 	describe('get cells as 2D array', () => {
 		it('should return cells as 2D array in correct order', () => {
-			const grid = new SquareGrid(2, 3);
+			const grid = new StubGrid(2, 3);
 			const board = new BoardState(grid);
 			
 			const cells2D = board.getCellsAs2DArray();
@@ -272,13 +345,13 @@ describe('BoardState', () => {
 		});
 
 		it('should reject empty grid', () => {
-			expect(() => new BoardState(new SquareGrid(0, 0))).toThrow('Grid dimensions must be positive integers');
+			expect(() => new BoardState(new StubGrid(0, 0))).toThrow('Grid dimensions must be positive integers');
 		});
 	});
 
 	describe('initialize single cell', () => {
 		it('should reset a single cell to default state', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid);
 			const pos: Position = { x: 1, y: 1 };
 			
@@ -304,7 +377,7 @@ describe('BoardState', () => {
 		});
 
 		it('should handle invalid position gracefully', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid);
 			
 			// Should not throw error for invalid position
@@ -312,7 +385,7 @@ describe('BoardState', () => {
 		});
 
 		it('should not affect other cells', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid);
 			const pos1: Position = { x: 0, y: 0 };
 			const pos2: Position = { x: 1, y: 1 };
@@ -333,7 +406,7 @@ describe('BoardState', () => {
 
 	describe('reset', () => {
 		it('should reset all cells to default state', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid);
 			
 			// Click some cells and modify states
@@ -355,7 +428,7 @@ describe('BoardState', () => {
 		});
 
 		it('should not change grid system reference', () => {
-			const grid = new SquareGrid(3, 3);
+			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid);
 			
 			board.reset();

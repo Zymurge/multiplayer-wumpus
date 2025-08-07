@@ -23,18 +23,37 @@ export interface IGridSystem {
 	distance(pos1: Position, pos2: Position): number;
 	
 	/**
-	 * Get a random valid position within the grid boundaries
-	 * @returns A valid position within the grid
-	 */
-	getRandomPosition(): Position;
-	
-	/**
 	 * Get all adjacent positions to the given position
 	 * Only returns positions that are valid within grid boundaries
 	 * @param pos The center position
 	 * @returns Array of adjacent valid positions
-	 */
+	*/
 	getAdjacentPositions(pos: Position): Position[];
+	
+	/**
+	 * Get all valid positions in the grid
+	 * @returns Array of all valid positions within grid boundaries
+	*/
+	getAllPositions(): Position[];
+	
+	/**
+	 * Get grid dimensions
+	 * @returns Object containing grid dimensions
+	*/
+	getDimensions(): { width: number; height: number };
+	
+	/**
+	 * Find a random move location from the set of all valid adjacent cells plus the origin
+	 * No move can be considered a random move afterall
+	 * @returns Cell position of the random move
+	*/
+	getRandomMovement(pos: Position): Position;
+	
+	/**
+	 * Get a random valid position within the grid boundaries
+	 * @returns A valid position within the grid
+	 */
+	getRandomPosition(): Position;
 	
 	/**
 	 * Check if a position is valid within grid boundaries
@@ -49,23 +68,4 @@ export interface IGridSystem {
 	 * @returns Maximum distance between any two valid positions
 	 */
 	maxDistance(): number;
-	
-	/**
-	 * Get all valid positions in the grid
-	 * @returns Array of all valid positions within grid boundaries
-	 */
-	getAllPositions(): Position[];
-	
-	/**
-	 * Get grid dimensions
-	 * @returns Object containing grid dimensions
-	 */
-	getDimensions(): { width: number; height: number };
-
-	/**
-	 * Find a random move location from the set of all valid adjacent cells plus the origin
-	 * No move can be considered a random move afterall
-	 * @returns Cell position of the random move
-	 */
-	getRandomMovement(pos: Position): Position;
 }
