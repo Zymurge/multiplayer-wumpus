@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { SquareGrid } from './SquareGrid.js';
-import type { Position } from './IGridSystem.js';
+import type { Position } from '$lib/grid/IGridSystem.js';
 
-describe('SquareGrid', () => {
+// Skip all tests in deprecated folder
+describe.skip('SquareGrid', () => {
 	describe('constructor and basic properties', () => {
 		it('should create a grid with specified dimensions', () => {
 			const grid = new SquareGrid(5, 3);

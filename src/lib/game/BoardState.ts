@@ -1,40 +1,8 @@
-import type { IGridSystem, Position } from '../grid/IGridSystem.js';
-import { ColorFader, COLORS, getDistanceColor } from './ColorManager.js';
+import type { IGridSystem, Position } from '$lib/grid/IGridSystem.js';
+import { GridCell } from '$lib/grid/IGridSystem.js';
+import { COLORS, getDistanceColor } from './ColorManager.js';
 
-/**
- * Represents the state of a single cell in the game board
- */
-export class GridCell {
-	position: Position;
-	value: number | null;
-	clicked: boolean = false;
-	/**
-	 * Color manager for this cell, used to handle color fading
-	 * @type {ColorFader | null}
-	 */
-	fader: ColorFader | null = null;
-
-	constructor(pos: Position) {
-		this.position = pos;
-		this.value = null;
-	}
-
-	public shade() {
-		return this.fader?.color;
-	}
-
-	public setColorManager(
-		startRGB:  string,
-		endRGB:    string,
-		fadeSteps: number
-	) {
-		console.log(`setColorManager() for cell at ${this.position.x},${this.position.y} with startRGB=${startRGB}, endRGB=${endRGB}, fadeSteps=${fadeSteps}`);
-		const fader = new ColorFader( startRGB, endRGB, fadeSteps );
-		this.fader = fader;
-	}
-}
-
-/**
+/*
  * Manages the state of all cells on the game board
  * Handles cell state operations like fading, clicking, and value setting
  * Does NOT handle geometry operations - delegates to IGridSystem

@@ -1,15 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { BoardState } from './BoardState.js';
-import type { IGridSystem, Position } from '../grid/IGridSystem.js';
+import type { IGridSystem, Position } from '$lib/grid/IGridSystem.js';
+// import { GridCell } from '$lib/grid/IGridSystem.js';
 
-const StubGridCell = {
-	position: { x: 0, y: 0 },
-	shade: 100,
-	value: null,
-	clicked: false,
-	fadeCounter: 0,
-	fader: undefined
-};
+// class StubGridCell extends GridCell {
+// 	constructor() {
+// 		super( { x: 0, y: 0 } );
+// 	}
+// }
 
 class StubGrid implements IGridSystem {
 	width: number;
