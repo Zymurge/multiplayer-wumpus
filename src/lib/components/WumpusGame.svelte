@@ -3,12 +3,11 @@
   import { onMount } from 'svelte';
   import { WumpusGame } from '$lib/game/WumpusGame';
   import HexCell from '$lib/components/HexCell.svelte';
-  import { COLORS, mergeTheme, type ColorTheme } from '../game/colors.js';
-  import { ColorFader, getDistanceColor } from '../game/ColorManager.js';
-
+  import { HEXHEIGHT, HEXSIZE } from '$lib/components/HexCell.svelte';
+  import { mergeTheme, type ColorTheme } from '$lib/game/colors.js';
+  
   // Props for customizing colors
   export let colorTheme: ColorTheme = {};
-
   // Merge theme with defaults
   $: colors = mergeTheme(colorTheme);
 
@@ -21,14 +20,11 @@
     color: string;
     showWumpus: boolean;
   }[][] = [];
-
   let moves = 0;
   let gameRunning = false;
   let gameWon = false;
   // Used for reactivity in the grid display
   let gridUpdate = 0;
-
-  const size = 60;
   const padding = 0;
 
   $: if (game && gridUpdate >= 0) {
@@ -97,10 +93,10 @@
   class="hex-grid"
   style="
     position: relative;
-	width:
-	  { ( size + padding ) * ( currentGameGridSize + 0.5 ) }px;
+    width:
+      {(HEXSIZE + padding) * (currentGameGridSize + 0.5)}px;
     height:
-      {currentGameGridSize * size + size / 2}px;
+      {currentGameGridSize * HEXHEIGHT * 0.75 + HEXHEIGHT / 4}px;
     --grid-background: {colors.gridBackground};
     --wumpus-color: {colors.wumpus};
     --unclicked-color: {colors.unclicked};
@@ -116,7 +112,7 @@
         value={cell.value}
         backgroundColor={cell.color}
         showWumpus={cell.showWumpus}
-        {size}
+        hexSize={HEXSIZE}
         on:click={() => handleClick(x, y)}
       />
     {/each}

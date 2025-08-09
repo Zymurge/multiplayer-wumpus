@@ -1,27 +1,32 @@
 <!-- src/lib/components/HexCell.svelte -->
+<script context="module">
+  export const HEXSIZE: number = 80;
+  // hex metrics for pointy-top even-q
+  export const HEXHEIGHT = 2 * HEXSIZE / Math.sqrt(3);
+  //export const HEXHEIGHT = 1.15 * HEXSIZE;
+</script>
+
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import WumpusSprite from './WumpusSprite.svelte';
-  import { COLORS } from '../game/colors.js';
+  import { COLORS } from '$lib/game/colors.js';
 
   export let x: number;
   export let y: number;
   export let value: string = '';
   export let backgroundColor: string = COLORS.unclicked;
   export let showWumpus: boolean = false;
-  export let size: number = 80;
+  export const hexSize: number = HEXSIZE; // default to module constant
+  export const hexHeight: number = HEXHEIGHT; // default to module constant
 
   const dispatch = createEventDispatcher<{ click: { x: number; y: number } }>();
 
-  // hex metrics for pointy-top even-q
-  //const height = 2 * size / Math.sqrt(3);
-  const height = 1.15 * size;
   const xPad = 0
   const yPad = 2; // slight vertical padding for better click area
 
   // Calculate the position based on hex grid layout
-  $: left = x * size + (y % 2 === 1 ? size * 0.5 : 0) + x * xPad;
-  $: top  = y * (height * 0.75) + (y * yPad);
+  $: left = x * hexSize + (y % 2 === 1 ? hexSize * 0.5 : 0) + x * xPad;
+  $: top  = y * (hexHeight * 0.75) + (y * yPad);
 
   function handleClick() {
     dispatch('click', { x, y });
@@ -30,8 +35,8 @@
 
 <button
   class="hex-cell"
-  style:width="{size}px"
-  style:height="{height}px"
+  style:width="{hexSize}px"
+  style:height="{hexHeight}px"
   style:left="{left}px"
   style:top="{top}px"
   style:background-color={backgroundColor}
