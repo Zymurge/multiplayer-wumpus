@@ -1,6 +1,6 @@
-import { HexGrid } from '../grid/HexGrid.js';
-import { BoardState, type GridCell } from './BoardState.js';
-import type { Position } from '../grid/IGridSystem.js';
+import { BoardState } from './BoardState.js';
+import { HexGrid } from '$lib/grid/HexGrid.js';
+import type { GridCell, Position } from '$lib/grid/IGridSystem.js';
 
 type WumpusPosition = Position;
 
@@ -11,8 +11,7 @@ type WumpusPosition = Position;
  *   • Implements movement rules (getRandomMovement)
  *   • Exposes get(), getCellsAs2DArray(), setClicked(), reset()
  */
-// TODO: Rename this to WumpusGame
-export class GameGrid {
+export class WumpusGame {
 	private gridSystem: HexGrid;
 	private boardState: BoardState;
 	wumpus: WumpusPosition;
@@ -129,6 +128,3 @@ export class GameGrid {
 		this.clickCount = 0;
 	}
 };
-
-// TODO: remove temp bridge for name change
-export { GameGrid as WumpusGame };

@@ -26,6 +26,13 @@ export class GridCell {
 		this.value = null;
 	}
 
+	/** 
+	 * Convience getter for the current fade step
+	 */
+	public get fadeStep(): number {
+		return this.fader?.currStep ?? 0;
+	}
+
 	public shade() {
 		return this.fader?.color;
 	}

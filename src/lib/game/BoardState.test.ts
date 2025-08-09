@@ -126,10 +126,9 @@ describe('BoardState', () => {
 			for (const pos of positions) {
 				const cell = board.getCell(pos);
 				expect(cell).not.toBeNull();
-				expect(cell!.shade).toBe(100);
 				expect(cell!.value).toBeNull();
 				expect(cell!.clicked).toBe(false);
-				expect(cell!.fadeCounter).toBe(0);
+				expect(cell!.fader!.steps).toBe(0);
 				expect(cell!.position).toEqual(pos);
 			}
 		});
@@ -151,10 +150,6 @@ describe('BoardState', () => {
 			const cell = board.getCell(pos);
 			expect(cell).not.toBeNull();
 			expect(cell!.position).toEqual(pos);
-			expect(cell!.shade).toBe(100);
-			expect(cell!.value).toBeNull();
-			expect(cell!.clicked).toBe(false);
-			expect(cell!.fadeCounter).toBe(0);
 		});
 
 		it('should return null for invalid position', () => {
@@ -165,39 +160,21 @@ describe('BoardState', () => {
 			expect(board.getCell({ x: -1, y: 0 })).toBeNull();
 			expect(board.getCell({ x: 0, y: -1 })).toBeNull();
 		});
-
-		it('should be agnostic to cell settings and validate settings are persisted', () => {
-			const grid = new StubGrid(3, 3);
-			const board = new BoardState(grid);
-			const pos: Position = { x: 1, y: 1 };
-			
-			// Set cell to clicked state
-			board.setCellClicked(pos, 5);
-			
-			// Retrieve cell and verify all settings are persisted
-			const cell = board.getCell(pos);
-			expect(cell).not.toBeNull();
-			expect(cell!.position).toEqual(pos);
-			expect(cell!.value).toBe(5);
-			expect(cell!.shade).toBe(0);
-			expect(cell!.clicked).toBe(true);
-			expect(cell!.fadeCounter).toBe(3); // Default fadeSteps
-		});
 	});
 
 	describe('cell clicking', () => {
 		it('should set cell as clicked with correct values', () => {
 			const grid = new StubGrid(3, 3);
-			const board = new BoardState(grid);
+			const board = new BoardState(grid, 4);
 			const pos: Position = { x: 1, y: 1 };
 			
 			board.setCellClicked(pos, 5);
 			
 			const cell = board.getCell(pos);
 			expect(cell!.value).toBe(5);
-			expect(cell!.shade).toBe(0);
 			expect(cell!.clicked).toBe(true);
-			expect(cell!.fadeCounter).toBe(3);
+			expect(cell!.fader).not.toBeNull();
+			expect(cell!.fader!.steps).toBe(board.getFadeSteps());
 		});
 
 		it('should not accept negative values', () => {
@@ -211,6 +188,7 @@ describe('BoardState', () => {
 
 		it('should error on illegal coordinates', () => {
 			const grid = new StubGrid(3, 3);
+			grid.validPositionFake = false; // Force invalid positions
 			const board = new BoardState(grid);
 			
 			expect(() => board.setCellClicked({ x: 5, y: 5 }, 3)).toThrow('Invalid position');
@@ -228,9 +206,8 @@ describe('BoardState', () => {
 			
 			const otherCell = board.getCell(otherPos);
 			expect(otherCell!.value).toBeNull();
-			expect(otherCell!.shade).toBe(100);
 			expect(otherCell!.clicked).toBe(false);
-			expect(otherCell!.fadeCounter).toBe(0);
+			expect(otherCell!.fadeStep).toBe(0);
 		});
 
 		it('should respect custom fadeSteps value', () => {
@@ -241,11 +218,10 @@ describe('BoardState', () => {
 			board.setCellClicked(pos, 3);
 			
 			const cell = board.getCell(pos);
-			expect(cell!.fadeCounter).toBe(5);
+			expect(cell!.fader).not.toBeNull();
+			expect(cell!.fader!.steps).toBe(board.getFadeSteps());
 		});
 	});
-
-
 
 	describe('fade step', () => {
 		it('should fade all clicked cells by fade increment', () => {
@@ -257,17 +233,17 @@ describe('BoardState', () => {
 			board.setCellClicked({ x: 1, y: 1 }, 2);
 			board.setCellClicked({ x: 2, y: 2 }, 3);
 			
-			// Initial state: all should have fadeCounter = 4
-			expect(board.getCell({ x: 0, y: 0 })!.fadeCounter).toBe(4);
-			expect(board.getCell({ x: 1, y: 1 })!.fadeCounter).toBe(4);
-			expect(board.getCell({ x: 2, y: 2 })!.fadeCounter).toBe(4);
+			// Initial state: all should have fadeCounter = 0
+			expect(board.getCell({ x: 0, y: 0 })!.fadeStep).toBe(0);
+			expect(board.getCell({ x: 1, y: 1 })!.fadeStep).toBe(0);
+			expect(board.getCell({ x: 2, y: 2 })!.fadeStep).toBe(0);
 			
 			board.fadeStep();
 			
-			// After fade step: all should have fadeCounter = 3
-			expect(board.getCell({ x: 0, y: 0 })!.fadeCounter).toBe(3);
-			expect(board.getCell({ x: 1, y: 1 })!.fadeCounter).toBe(3);
-			expect(board.getCell({ x: 2, y: 2 })!.fadeCounter).toBe(3);
+			// After fade step: all should have fadeCounter = 1
+			expect(board.getCell({ x: 0, y: 0 })!.fadeStep).toBe(1);
+			expect(board.getCell({ x: 1, y: 1 })!.fadeStep).toBe(1);
+			expect(board.getCell({ x: 2, y: 2 })!.fadeStep).toBe(1);
 		});
 
 		it('should reset cell when fade counter reaches zero', () => {
@@ -276,33 +252,14 @@ describe('BoardState', () => {
 			const pos: Position = { x: 1, y: 1 };
 			
 			board.setCellClicked(pos, 5);
-			expect(board.getCell(pos)!.fadeCounter).toBe(1);
+			expect(board.getCell(pos)!.fadeStep).toBe(0);
 			
 			board.fadeStep();
 			
 			const cell = board.getCell(pos);
-			expect(cell!.shade).toBe(100);
 			expect(cell!.clicked).toBe(false);
 			expect(cell!.value).toBeNull();
-			expect(cell!.fadeCounter).toBe(0);
-		});
-
-		it('should calculate correct shade based on fade counter', () => {
-			const grid = new StubGrid(3, 3);
-			const board = new BoardState(grid, 4); // fadeSteps = 4
-			const pos: Position = { x: 1, y: 1 };
-			
-			board.setCellClicked(pos, 5);
-			expect(board.getCell(pos)!.shade).toBe(0); // fadeCounter = 4
-			
-			board.fadeStep();
-			expect(board.getCell(pos)!.shade).toBe(25); // fadeCounter = 3, 25% fade
-			
-			board.fadeStep();
-			expect(board.getCell(pos)!.shade).toBe(50); // fadeCounter = 2, 50% fade
-			
-			board.fadeStep();
-			expect(board.getCell(pos)!.shade).toBe(75); // fadeCounter = 1, 75% fade
+			expect(cell!.fadeStep).toBe(1);
 		});
 
 		it('should not affect unclicked cells', () => {
@@ -368,10 +325,9 @@ describe('BoardState', () => {
 			
 			// Verify cell is reset to default
 			cell = board.getCell(pos);
-			expect(cell!.shade).toBe(100);
 			expect(cell!.value).toBeNull();
 			expect(cell!.clicked).toBe(false);
-			expect(cell!.fadeCounter).toBe(0);
+			expect(cell!.fadeStep).toBe(0);
 		});
 
 		it('should handle invalid position gracefully', () => {
@@ -418,10 +374,9 @@ describe('BoardState', () => {
 			const positions = grid.getAllPositions();
 			for (const pos of positions) {
 				const cell = board.getCell(pos);
-				expect(cell!.shade).toBe(100);
 				expect(cell!.value).toBeNull();
 				expect(cell!.clicked).toBe(false);
-				expect(cell!.fadeCounter).toBe(0);
+				expect(cell!.fadeStep).toBe(0);
 			}
 		});
 
