@@ -16,13 +16,15 @@
   export let value: string = '';
   export let backgroundColor: string = COLORS.unclicked;
   export let showWumpus: boolean = false;
-  export const hexSize: number = HEXSIZE; // default to module constant
-  export const hexHeight: number = HEXHEIGHT; // default to module constant
+  export let hexSize: number;
 
   const dispatch = createEventDispatcher<{ click: { x: number; y: number } }>();
 
   const xPad = 0
   const yPad = 2; // slight vertical padding for better click area
+
+    // Calculate hexHeight dynamically based on hexSize
+  $: hexHeight = 2 * hexSize / Math.sqrt(3);
 
   // Calculate the position based on hex grid layout
   $: left = x * hexSize + (y % 2 === 1 ? hexSize * 0.5 : 0) + x * xPad;

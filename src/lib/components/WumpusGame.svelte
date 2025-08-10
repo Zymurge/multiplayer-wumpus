@@ -3,16 +3,23 @@
   import { onMount } from 'svelte';
   import { WumpusGame } from '$lib/game/WumpusGame';
   import HexCell from '$lib/components/HexCell.svelte';
-  import { HEXHEIGHT, HEXSIZE } from '$lib/components/HexCell.svelte';
+  //import { HEXHEIGHT, HEXSIZE } from '$lib/components/HexCell.svelte';
   import { mergeTheme, type ColorTheme } from '$lib/game/colors.js';
   
   // Props for customizing colors
   export let colorTheme: ColorTheme = {};
   // Merge theme with defaults
   $: colors = mergeTheme(colorTheme);
+    // Use sliderCellSize for calculations
+  $: HEXSIZE = sliderCellSize;
+  $: HEXHEIGHT = 2 * sliderCellSize / Math.sqrt(3);
+  $: gridWidth = (sliderCellSize + padding) * (currentGameGridSize + 0.5);
+  $: gridHeight = currentGameGridSize * HEXHEIGHT * 0.76 + HEXHEIGHT / 4;
 
+  
   let sliderGridSize = 5;
   let currentGameGridSize = sliderGridSize;
+  let sliderCellSize = 80; // default cell size
   let sliderFadeSteps = 4;
   let game: WumpusGame | undefined;
   let displayGrid: {
@@ -50,7 +57,7 @@
   onMount(() => startNewGame());
 
   function startNewGame() {
-	  currentGameGridSize = sliderGridSize;
+	  currentGameGridSize = sliderGridSize;console.log(`Starting new game with grid size ${currentGameGridSize} and cell size ${sliderCellSize}`);
     game = new WumpusGame(currentGameGridSize, currentGameGridSize, sliderFadeSteps);
     moves = 0;
     gameWon = false;
@@ -81,6 +88,10 @@
         <input type="range" min="4" max="20" bind:value={sliderGridSize} />
     </label>
     <label>
+        Cell Size: {sliderCellSize}
+        <input type="range" min="24" max="120" bind:value={sliderCellSize} />
+    </label>
+    <label>
         Results Lifetime: {sliderFadeSteps}
         <input type="range" min="1" max="10" bind:value={sliderFadeSteps} />
     </label>
@@ -96,7 +107,7 @@
     width:
       {(HEXSIZE + padding) * (currentGameGridSize + 0.5)}px;
     height:
-      {currentGameGridSize * HEXHEIGHT * 0.75 + HEXHEIGHT / 4}px;
+      {currentGameGridSize * HEXHEIGHT * 0.76 + HEXHEIGHT / 4}px;
     --grid-background: {colors.gridBackground};
     --wumpus-color: {colors.wumpus};
     --unclicked-color: {colors.unclicked};
@@ -112,7 +123,7 @@
         value={cell.value}
         backgroundColor={cell.color}
         showWumpus={cell.showWumpus}
-        hexSize={HEXSIZE}
+        hexSize={sliderCellSize}
         on:click={() => handleClick(x, y)}
       />
     {/each}
