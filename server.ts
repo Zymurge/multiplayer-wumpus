@@ -1,7 +1,7 @@
 import { createServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
-import { handler } from '../../build/handler.js'; // SvelteKit Node adapter output
-import { WumpusGame } from '../lib/game/WumpusGame.js';
+import { handler } from './build/handler.js'; // SvelteKit Node adapter output
+import { WumpusGame } from './src/lib/game/WumpusGame';
 
 // Create HTTP server
 const server = createServer(handler);

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ColorFader } from './ColorManager';
+import { ColorFader } from './ColorManager.ts';
 
 describe('ColorFader', () => {
     describe('constructor', () => {

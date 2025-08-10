@@ -1,6 +1,6 @@
 import { BoardState } from './BoardState.js';
-import { HexGrid } from '$lib/grid/HexGrid.js';
-import type { GridCell, Position } from '$lib/grid/IGridSystem.js';
+import { HexGrid } from '../grid/HexGrid.js';
+import type { GridCell, Position } from '../grid/IGridSystem.js';
 
 type WumpusPosition = Position;
 

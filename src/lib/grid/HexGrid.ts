@@ -36,8 +36,8 @@ export class HexGrid implements IGridSystem {
     private height: number;
 
     constructor(width: number, height: number) {
-        this.width = width;
-        this.height = height;
+        this.width = Math.max(0, width);
+        this.height = Math.max(0, height);
     }
 
     getDimensions() {
@@ -92,6 +92,8 @@ export class HexGrid implements IGridSystem {
     }
 
     getAdjacentPositions(pos: Position): Position[] {
+        if (!this.isValidPosition(pos)) return [];
+        
         const deltas = pos.x % 2 === 0 ? EVEN_Q_DELTAS : ODD_Q_DELTAS;
 
         const neighbors: Position[] = [];

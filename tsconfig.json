@@ -9,6 +9,29 @@
 		"skipLibCheck": true,
 		"sourceMap": true,
 		"strict": true,
-		"moduleResolution": "bundler"
-	}
+		"module": "ESNext",
+		"moduleResolution": "NodeNext",
+		"verbatimModuleSyntax": false,
+		"baseUrl": ".",
+		"allowImportingTsExtensions": true,
+		"paths": {
+			"$lib/*":    ["src/lib/*"],
+			"$routes/*": ["src/routes/*"],
+			"$server/*": ["src/server/*"],
+			"$build/*":  ["build/*"]
+		}
+	},
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.js",
+		"src/**/*.svelte",
+		"src/**/*.d.ts"
+	],
+	"exclude": [
+		"node_modules",
+		"build",
+		"dist",
+		"public"
+	],
+	"files": []
 }

@@ -1,5 +1,5 @@
-import type { IGridSystem, Position } from '$lib/grid/IGridSystem.js';
-import { GridCell } from '$lib/grid/IGridSystem.js';
+import type { IGridSystem, Position } from '../grid/IGridSystem.js';
+import { GridCell } from '../grid/IGridSystem.js';
 import { COLORS, getDistanceColor } from './ColorManager.js';
 
 /*
