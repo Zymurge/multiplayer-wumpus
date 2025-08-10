@@ -1,10 +1,10 @@
 <!-- src/lib/components/HexCell.svelte -->
-<script context="module">
+<!-- <script context="module">
   export const HEXSIZE: number = 80;
   // hex metrics for pointy-top even-q
   export const HEXHEIGHT = 2 * HEXSIZE / Math.sqrt(3);
   //export const HEXHEIGHT = 1.15 * HEXSIZE;
-</script>
+</script> -->
 
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
