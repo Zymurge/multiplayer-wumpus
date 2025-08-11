@@ -2,7 +2,7 @@ import type { Color } from 'chroma-js';
 import chroma from 'chroma-js';
 
 // Re-export centralized colors
-export { COLORS } from './colors';
+export { COLORS } from './colors.ts';
 
 /* ColorFader class to handle color transitions
  * This class allows you to create a color fader that transitions between two RGB colors.
@@ -86,8 +86,6 @@ export class ColorFader {
 		return this.currStep;
 	}
 }
-
-import { COLORS as CENTRALIZED_COLORS } from './colors.js';
 
 // Get color based on distance (0=green, half board=yellow, max=red)
 // Returns the color as a hex string

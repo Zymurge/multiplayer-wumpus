@@ -10,8 +10,9 @@
 		"sourceMap": true,
 		"strict": true,
 		"module": "ESNext",
-		"moduleResolution": "NodeNext",
+		"moduleResolution": "bundler",
 		"verbatimModuleSyntax": false,
+		"downlevelIteration": true,
 		"baseUrl": ".",
 		"allowImportingTsExtensions": true,
 		"paths": {

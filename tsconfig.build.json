@@ -1,0 +1,30 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "target": "ES2022",
+        "allowJs": true,
+        "rootDir": ".",
+        "outDir": ".server/build",
+        "skipLibCheck": true,
+        "strict": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "sourceMap": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "noEmit": false
+    },
+    "include": [
+        "src/server/**/*",
+        "src/lib/**/*.ts",
+        "src/routes/**/*.ts"
+    ],
+    "exclude": [
+        ".svelte-kit",
+        "build",
+        "src/**/*.test.ts",
+        "src/lib/src_deprecated/**/*"
+    ]
+}

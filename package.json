@@ -4,19 +4,23 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "pnpm build && ts-node --project tsconfig.server.json src/server.ts",
     "dev": "vite dev",
     "build": "vite build",
     "check": "svelte-check --tsconfig tsconfig.json",
     "check:watch": "svelte-check --tsconfig tsconfig.json --watch",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "server:build": "tsc -p tsconfig.server.json",
+    "server:start": "pnpm server:build && node dist/server/server/server.js",
+    "server:test": "vitest run src/server/**/*.test.ts src/lib/{game,grid}/**/*.test.ts",
+    "server:test:watch": "vitest src/server/**/*.test.ts src/lib/{game,grid}/**/*.test.ts"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^6.0.0",
     "@sveltejs/adapter-node": "^5.2.14",
     "@sveltejs/kit": "^2.0.0",
     "@sveltejs/vite-plugin-svelte": "^6.1.1",
+    "@swc/core": "^1.13.3",
     "@types/chroma-js": "^3.1.1",
     "@types/ws": "^8.18.1",
     "svelte": "^5.0.0",

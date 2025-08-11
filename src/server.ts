@@ -1,8 +1,8 @@
 import { createServer } from 'node:http';
 import type { Server, IncomingMessage, ServerResponse } from 'node:http';
 import { WebSocketServer, WebSocket } from 'ws';
-import { handler } from '../build/handler.js';
-import { W as WumpusGame } from '../.svelte-kit/output/server/chunks/WumpusGame.js';
+import { handler } from './build/handler.js';
+import { WumpusGame } from './lib/game/WumpusGame.js';
 
 const server: Server<typeof IncomingMessage, typeof ServerResponse> = createServer(
     // @ts-ignore - SvelteKit's handler type doesn't match exactly but it works

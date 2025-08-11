@@ -1,10 +1,17 @@
-import { createServer } from 'http';
+import { createServer } from 'node:http';
 import { WebSocketServer, WebSocket } from 'ws';
-import { handler } from '../../build/handler.js'; // SvelteKit Node adapter output
-import { WumpusGame } from '../lib/game/WumpusGame.js';
+import { WumpusGame } from '../lib/game/WumpusGame.ts';
 
-// Create HTTP server
-const server = createServer(handler);
+// Create HTTP server with basic handler for health check
+const server = createServer((req, res) => {
+  if (req.url === '/health') {
+    res.writeHead(200);
+    res.end('OK');
+    return;
+  }
+  res.writeHead(404);
+  res.end('Not Found');
+});
 
 // Create WebSocket server on the same HTTP server
 const wss = new WebSocketServer({ server, path: '/api/game/ws' });
@@ -52,14 +59,15 @@ wss.on('connection', (ws) => {
 
 // Helper to get game state
 function getGameState(game: WumpusGame) {
-  const { width, height } = game.getDimensions();
-  const displayGrid = Array.from({ length: height }, (_, y) =>
-    Array.from({ length: width }, (_, x) => {
-      const cell = game.get(x, y);
+  const cells = game.getCellsAs2DArray();
+  const displayGrid = cells.map(row =>
+    row.map(cell => {
       const clicked = cell.clicked;
-      const isWumpus = clicked && cell.distance === 0;
+      const isWumpus = clicked && game.last?.dist === 0 && 
+                       game.wumpus.x === cell.position.x && 
+                       game.wumpus.y === cell.position.y;
       return {
-        value: !isWumpus && clicked ? cell.distance?.toString() ?? '' : '',
+        value: !isWumpus && clicked ? (game.last?.dist?.toString() ?? '') : '',
         color: cell.fader?.color() ?? '',
         showWumpus: isWumpus
       };
@@ -68,8 +76,8 @@ function getGameState(game: WumpusGame) {
   return {
     displayGrid,
     moves: game.clickCount,
-    gameWon: game.wumpusFound,
-    found: game.wumpusFound,
+    gameWon: game.last?.dist === 0,
+    found: game.last?.dist === 0,
     distance: game.last?.dist ?? -1,
   };
 }
