@@ -1,53 +1,61 @@
 # Multiplayer Hunt the Wumpus
 
-A modern TypeScript/SvelteKit implementation of the classic Hunt the Wumpus game, built for learning and multiplayer functionality.
+A modern TypeScript/SvelteKit implementation of the classic Hunt the Wumpus game, with real-time multiplayer support via WebSocket.
 
 ## Features
 
-- **Modern Tech Stack**: Built with SvelteKit and TypeScript
+- **Modern Tech Stack**: Built with SvelteKit frontend and standalone TypeScript WebSocket server
 - **Visual Polish**: Color-coded distance feedback with fade-out mechanics
 - **Animated Wumpus**: Custom SVG sprite with golden glow effect
 - **Smart Game Logic**: Wumpus moves based on player movement patterns
 - **Responsive Design**: Clean, modern UI with proper visual feedback
+- **Real-time Multiplayer**: WebSocket-based server for live game updates
 
-## Game Mechanics
+## Architecture
 
-- Click squares to hunt for the Wumpus
-- Distance feedback: Green (close) → Yellow (medium) → Red (far)
-- Previous guesses fade out after an adjustable number of clicks
-- The Wumpus moves based on your movement distance
-- Find the Wumpus to win!
+The project is split into two main components:
+
+### Frontend (SvelteKit)
+- Modern SvelteKit application
+- TypeScript for type safety
+- Responsive UI with Svelte components
+- WebSocket client for real-time game updates
+
+### Game Server
+- Standalone TypeScript WebSocket server
+- Direct TypeScript execution with ts-node
+- Manages game state and player connections
+- Located in `src/server/`
 
 ## Development
 
+You'll need to run both the frontend and server in separate terminals:
+
 ```bash
-# Install dependencies
-npm install
+# Install dependencies in both root and server directories
+pnpm install
+cd src/server && pnpm install
 
-# Start development server
-npm run dev
+# Terminal 1: Start the WebSocket server
+cd src/server
+pnpm start
 
-# Build for production
-npm run build
+# Terminal 2: Start the SvelteKit dev server
+# (from project root)
+pnpm dev
 ```
-
-## Coming Soon
-
-- Conversion from Square based grid to Hex map
-- Multiplayer turn-based gameplay
-- WebSocket backend for real-time play
-- Docker containerization
-- Deployment configuration
 
 ## Project Structure
 
-```multiplayer-wumpus/
+```
+multiplayer-wumpus/
 ├── src/
-│   ├── lib/
-│   │   ├── grid/              # all coordinate & neighbor math
-│   │   │   ├── IGridSystem.ts # grid system interface
-│   │   │   ├── SquareGrid.ts  # row/col implementation
-│   │   │   ├── HexGrid.ts     # pointy-top hex (even-q) implementation
+│   ├── lib/            # Shared game logic
+│   │   ├── components/ # Svelte components
+│   │   ├── game/      # Core game mechanics
+│   │   └── grid/      # Grid system implementations
+│   ├── routes/        # SvelteKit routes
+│   └── server/        # Standalone WebSocket server
 │   │   │   ├── SquareGrid.test.ts
 │   │   │   └── HexGrid.test.ts
 │   │   │
