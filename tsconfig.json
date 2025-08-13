@@ -25,7 +25,7 @@
 		"src/routes/**/*.ts",
 		"src/**/*.svelte",
 		"src/**/*.d.ts"
-	],
+, "src/shared/game/BoardState.test.ts", "src/shared/game/BoardState.test.ts", "src/shared/game/ColorManager.test.ts", , "src/shared/game/BoardState.ts", "src/shared/game/BoardState.ts""src/shared/game/ColorManager.test.ts"	],
 	"exclude": [
 		"node_modules",
 		"build",

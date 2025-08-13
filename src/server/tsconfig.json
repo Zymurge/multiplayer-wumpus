@@ -10,13 +10,17 @@
     "baseUrl": "..",
     "outDir": "dist",
     "paths": {
-      "$lib/*": ["lib/*"]
+      "@shared/*": ["shared/*"],
+      "@server/*": ["server/*"]
     }
   },
   "include": [
-    "server.ts"
+    "../server/**/*.ts",
+    "../shared/**/*.ts"
   ],
   "exclude": [
-    "dist"
+    "dist",
+    "../client",
+    "../routes"
   ]
 }

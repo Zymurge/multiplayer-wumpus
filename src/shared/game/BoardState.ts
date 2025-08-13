@@ -1,5 +1,5 @@
-import type { IGridSystem, Position } from '../grid/IGridSystem.ts';
-import { GridCell } from '../grid/IGridSystem.ts';
+import type { IGridSystem, Position } from '../../lib/grid/IGridSystem.ts';
+import { GridCell } from '../../lib/grid/IGridSystem.ts';
 import { COLORS, getDistanceColor } from './ColorManager.ts';
 
 /*
