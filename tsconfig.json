@@ -16,16 +16,17 @@
 		"baseUrl": ".",
 		"allowImportingTsExtensions": true,
 		"paths": {
-			"$lib/*": ["src/lib/*"],
+			"$shared/*": ["src/shared/*"],
 			"$routes/*": ["src/routes/*"]
 		}
 	},
 	"include": [
-		"src/lib/**/*.ts",
+		"src/client/**/*.ts",
+		"src/shared/**/*.ts",
 		"src/routes/**/*.ts",
 		"src/**/*.svelte",
 		"src/**/*.d.ts"
-, "src/shared/game/BoardState.test.ts", "src/shared/game/BoardState.test.ts", "src/shared/game/ColorManager.test.ts", , "src/shared/game/BoardState.ts", "src/shared/game/BoardState.ts""src/shared/game/ColorManager.test.ts"	],
+	],
 	"exclude": [
 		"node_modules",
 		"build",
