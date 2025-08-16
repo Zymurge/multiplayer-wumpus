@@ -1,6 +1,6 @@
 import { createServer } from 'node:http';
 import { WebSocketServer, WebSocket } from 'ws';
-import { WumpusGame } from '../lib/game/WumpusGame.ts';
+import { WumpusGame } from '../shared/game/WumpusGame.js';
 
 // Create HTTP server with basic handler for health check
 const server = createServer((req, res) => {

@@ -1,11 +1,11 @@
 <!-- src/routes/+page.svelte -->
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { WumpusGame } from '$lib/game/WumpusGame';
-  import HexCell from '$lib/components/HexCell.svelte';
-  //import { HEXHEIGHT, HEXSIZE } from '$lib/components/HexCell.svelte';
-  import { mergeTheme, type ColorTheme } from '$lib/game/colors.js';
-  
+  import { WumpusGame } from '@shared/game/WumpusGame.js';
+  import HexCell from '@client/components/HexCell.svelte';
+  //import { HEXHEIGHT, HEXSIZE } from '@client/components/HexCell.svelte';
+  import { mergeTheme, type ColorTheme } from '@shared/game/colors.js';
+
   // Props for customizing colors
   export let colorTheme: ColorTheme = {};
   // Merge theme with defaults

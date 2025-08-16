@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { BoardState } from './BoardState.js';
-import type { IGridSystem, Position } from '$lib/grid/IGridSystem.js';
+import type { IGridSystem, Position } from '@shared/grid/IGridSystem.js';
 // import { GridCell } from '$lib/grid/IGridSystem.js';
 
 // class StubGridCell extends GridCell {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import WumpusGame from '$lib/components/WumpusGame.svelte';
+	import WumpusGame from '@client/components/WumpusGame.svelte';
 </script>
 
 <svelte:head>

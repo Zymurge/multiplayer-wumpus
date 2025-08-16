@@ -1,6 +1,5 @@
-import type { IGridSystem, Position } from '../../lib/grid/IGridSystem.ts';
-import { GridCell } from '../../lib/grid/IGridSystem.ts';
-import { COLORS, getDistanceColor } from './ColorManager.ts';
+import { GridCell, type IGridSystem, type Position } from '@shared/grid/IGridSystem.js';
+import { COLORS, getDistanceColor } from './ColorManager.js';
 
 /*
  * Manages the state of all cells on the game board
