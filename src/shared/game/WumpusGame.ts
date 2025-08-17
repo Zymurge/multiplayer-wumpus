@@ -1,12 +1,12 @@
 import { BoardState } from './BoardState.js';
 import { HexGrid } from '../grid/HexGrid.js';
-import type { GridCell, Position } from '../grid/IGridSystem.js';
+import type { GridCell, Position } from '../grid/IGridOperations.js';
 
 type WumpusPosition = Position;
 
 /**
  * High-level game orchestrator:
- *   • Chooses initial Wumpus position via GridSystem.getRandomPosition()
+ *   • Chooses initial Wumpus position via GridOperations.getRandomPosition()
  *   • On each click: computes distance, updates BoardModel, moves Wumpus
  *   • Implements movement rules (getRandomMovement)
  *   • Exposes get(), getCellsAs2DArray(), setClicked(), reset()

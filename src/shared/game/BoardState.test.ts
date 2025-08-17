@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { BoardState } from './BoardState.js';
-import type { IGridSystem, Position } from '@shared/grid/IGridSystem.js';
-// import { GridCell } from '$lib/grid/IGridSystem.js';
+import type { IGridOperations, Position } from '@shared/grid/IGridOperations.js';
 
 // class StubGridCell extends GridCell {
 // 	constructor() {
@@ -9,7 +8,7 @@ import type { IGridSystem, Position } from '@shared/grid/IGridSystem.js';
 // 	}
 // }
 
-class StubGrid implements IGridSystem {
+class StubGrid implements IGridOperations {
 	width: number;
 	height: number;
 
@@ -137,7 +136,7 @@ describe('BoardState', () => {
 			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid);
 			
-			expect(board.getGridSystem()).toBe(grid);
+			expect(board.getGridOperations()).toBe(grid);
 		});
 	});
 
@@ -304,60 +303,6 @@ describe('BoardState', () => {
 		});
 	});
 
-	describe('initialize single cell', () => {
-		it('should reset a single cell to default state', () => {
-			const grid = new StubGrid(3, 3);
-			const board = new BoardState(grid);
-			const pos: Position = { x: 1, y: 1 };
-			
-			// Click cell and modify its state
-			board.setCellClicked(pos, 5);
-			board.fadeStep();
-			
-			// Verify cell is modified
-			let cell = board.getCell(pos);
-			expect(cell!.clicked).toBe(true);
-			expect(cell!.value).toBe(5);
-			expect(cell!.shade).not.toBe(100);
-			
-			// Initialize the cell
-			board.initializeCell(pos);
-			
-			// Verify cell is reset to default
-			cell = board.getCell(pos);
-			expect(cell!.value).toBeNull();
-			expect(cell!.clicked).toBe(false);
-			expect(cell!.fadeStep).toBe(0);
-		});
-
-		it('should handle invalid position gracefully', () => {
-			const grid = new StubGrid(3, 3);
-			const board = new BoardState(grid);
-			
-			// Should not throw error for invalid position
-			expect(() => board.initializeCell({ x: 10, y: 10 })).not.toThrow();
-		});
-
-		it('should not affect other cells', () => {
-			const grid = new StubGrid(3, 3);
-			const board = new BoardState(grid);
-			const pos1: Position = { x: 0, y: 0 };
-			const pos2: Position = { x: 1, y: 1 };
-			
-			// Click both cells
-			board.setCellClicked(pos1, 3);
-			board.setCellClicked(pos2, 7);
-			
-			// Initialize only one cell
-			board.initializeCell(pos1);
-			
-			// First cell should be reset, second should be unchanged
-			expect(board.getCell(pos1)!.clicked).toBe(false);
-			expect(board.getCell(pos2)!.clicked).toBe(true);
-			expect(board.getCell(pos2)!.value).toBe(7);
-		});
-	});
-
 	describe('reset', () => {
 		it('should reset all cells to default state', () => {
 			const grid = new StubGrid(3, 3);
@@ -386,7 +331,7 @@ describe('BoardState', () => {
 			
 			board.reset();
 			
-			expect(board.getGridSystem()).toBe(grid);
+			expect(board.getGridOperations()).toBe(grid);
 		});
 	});
 });

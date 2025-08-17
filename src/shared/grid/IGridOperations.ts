@@ -55,7 +55,7 @@ export class GridCell {
  * 
  * Implementations should be stateless and focused purely on geometric operations
  */
-export interface IGridSystem {
+export interface IGridOperations {
 	/**
 	 * Calculate distance between two positions using this grid's metric
 	 * @param pos1 First position

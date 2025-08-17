@@ -1,5 +1,5 @@
-// HexGrid implementation of IGridSystem
-import type { IGridSystem, Position } from './IGridSystem.js';
+// HexGrid implementation of IGridOperation
+import type { IGridOperations, Position } from './IGridOperations.js';
 
 /**
  * Mapping of adjacent cells for an even numbered row
@@ -31,7 +31,7 @@ export const ODD_Q_DELTAS = [
  * 
  * All cells are exposed as { x, y } Positions and converted internally
  */
-export class HexGrid implements IGridSystem {
+export class HexGrid implements IGridOperations {
     private width: number;
     private height: number;
 

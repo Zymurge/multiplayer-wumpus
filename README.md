@@ -85,7 +85,7 @@ multiplayer-wumpus/
 
 - **lib/grid/**
   Provides coordinate systems and neighbor-math abstractions.
-  - **IGridSystem.ts**: Defines the grid system interface.
+  - **IGridOperation.ts**: Defines the grid system interface.
   - **SquareGrid.ts**: Implements a row/column grid (Manhattan/Chebyshev).
   - **HexGrid.ts**: Implements a pointy-top, even-q hex grid.
   - **\*.test.ts**: Unit tests validating each grid implementation.

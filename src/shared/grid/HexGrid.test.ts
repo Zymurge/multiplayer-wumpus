@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { HexGrid, EVEN_Q_DELTAS, ODD_Q_DELTAS } from './HexGrid.js';
-import type { Position } from './IGridSystem.js';
+import type { Position } from './IGridOperations.js';
 
 describe('HexGrid', () => {
     describe('constructor and basic properties', () => {
