@@ -109,9 +109,12 @@ export class WumpusGame {
 	 * Handle cell click - main game logic
 	 * Uses gridSystem for distance calculation and BoardState for cell state
 	 */
-	setClicked(x: number, y: number): { found: boolean; distance: number } {
+	setClicked(x: number, y: number): void {
 		const clickPos = { x, y };
-		
+		if (!this.gridSystem.isValidPosition(clickPos)) {
+			throw new Error(`Coords not in grid: ${x}, ${y}`);
+		}
+
 		// Calculate distance using gridSystem
 		const distance = this.gridSystem.distance(this.wumpus, clickPos);
 		
@@ -135,8 +138,6 @@ export class WumpusGame {
 		}
 
 		this.last = { x, y, dist: distance };
-
-		return { found: this.wumpusFound, distance };
 	}
 
 	/**

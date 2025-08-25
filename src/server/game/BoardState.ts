@@ -1,4 +1,4 @@
-import { GridCell, type IGridOperations, type Position } from '@shared/grid/IGridOperations.js';
+import { GridCell, type IGridOperations, type Position } from '../grid/IGridOperations.js';
 import { COLORS, getDistanceColor } from './ColorManager.js';
 
 /*

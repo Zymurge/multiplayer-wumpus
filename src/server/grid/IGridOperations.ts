@@ -1,4 +1,4 @@
-import { ColorFader } from '../game/ColorManager.js';
+import { ColorFader } from '../../server/game/ColorManager.js';
 
 /**
  * Represents a position in the grid system

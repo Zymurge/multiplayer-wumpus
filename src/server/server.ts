@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 import { WebSocketServer, Server } from 'ws';
 import { GameSocket } from './ws/types.js';
-import { ClientMessage, ClientMessageType, ServerMessage, ServerMessageType } from '@shared/types/game.js';
+import { ClientMessage, ClientMessageType, ServerMessage, ServerMessageType } from '@shared/types.js';
 import { createServerError, gameMap, handleCellClicked, handleStartGame, handleResetGame } from './ws/handler.js';
 
 // Create HTTP server with basic handler for health check

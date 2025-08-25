@@ -1,5 +1,5 @@
-import { WumpusGame } from '@shared/game/WumpusGame.js';
-import { type GameState, ServerMessage, ServerMessageType } from '@shared/types/game.js';
+import { WumpusGame } from '@server/game/WumpusGame.js';
+import { type GameState, ServerMessage, ServerMessageType } from '@shared/types.js';
 
 // Export games map for testing
 export const gameMap = new Map<string, WumpusGame>();
@@ -60,10 +60,11 @@ export function handleCellClicked(id: string, payload: { x: number; y: number })
     if (!game) {
         return createServerError('No active game found');
     }
-    if (!payload.x || !payload.y) {
-        return createServerError('Invalid click coordinates');
+    try {
+        game.setClicked(payload.x, payload.y);
+    } catch (error) {
+        return createServerError('Invalid click coordinates', error instanceof Error ? error.message : undefined);
     }
-    const { found, distance } = game.setClicked(payload.x, payload.y);
 
     return {
         type: ServerMessageType.GAME_STATE,

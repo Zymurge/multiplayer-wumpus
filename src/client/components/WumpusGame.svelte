@@ -1,10 +1,9 @@
 <!-- src/routes/+page.svelte -->
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { WumpusGame } from '@shared/game/WumpusGame.js';
   import HexCell from '@client/components/HexCell.svelte';
   //import { HEXHEIGHT, HEXSIZE } from '@client/components/HexCell.svelte';
-  import { mergeTheme, type ColorTheme } from '@shared/game/colors.js';
+  import { mergeTheme, type ColorTheme } from '@shared/colors.js';
 
   // Props for customizing colors
   export let colorTheme: ColorTheme = {};
@@ -21,7 +20,7 @@
   let currentGameGridSize = sliderGridSize;
   let sliderCellSize = 80; // default cell size
   let sliderFadeSteps = 4;
-  let game: WumpusGame | undefined;
+// let game: WumpusGame | undefined;
   let displayGrid: {
     value: string;
     color: string;
@@ -34,23 +33,27 @@
   let gridUpdate = 0;
   const padding = 0;
 
-  $: if (game && gridUpdate >= 0) {
-    const { width, height } = game.getDimensions();
+// $: if (game && gridUpdate >= 0) {
+//   const { width, height } = game.getDimensions();
+// TODO: Get all this state from the websocket
 
-    displayGrid = Array.from({ length: height }, (_, y) =>
-      Array.from({ length: width }, (_, x) => {
-        const cell = game!.get(x, y);
-        // Assume cell.setColorManager is called by BoardState internally
-        // and cell.colorManager provides the correct color for this cell
-        const clicked = cell.clicked;
-        const isWumpus = clicked && cell.value === 0;
+  $: if (gridUpdate >= 0) {
+    const width = currentGameGridSize;
+    const height = currentGameGridSize;
+    displayGrid = Array.from({ length: height }, (_, y) => {return []}
+      // Array.from({ length: width }, (_, x) => {
+      //   const cell = game!.get(x, y);
+      //   // Assume cell.setColorManager is called by BoardState internally
+      //   // and cell.colorManager provides the correct color for this cell
+      //   const clicked = cell.clicked;
+      //   const isWumpus = clicked && cell.value === 0;
 
-        return {
-          value: !isWumpus && clicked ? cell.value?.toString() ?? '' : '',
-          color: cell.fader?.color() ?? '', // color logic handled by ColorFader/ColorManager
-          showWumpus: isWumpus
-        };
-      })
+      //   return {
+      //     value: !isWumpus && clicked ? cell.value?.toString() ?? '' : '',
+      //     color: cell.fader?.color() ?? '', // color logic handled by ColorFader/ColorManager
+      //     showWumpus: isWumpus
+      //   };
+      // })
     );
   }
 
@@ -58,7 +61,7 @@
 
   function startNewGame() {
 	  currentGameGridSize = sliderGridSize;console.log(`Starting new game with grid size ${currentGameGridSize} and cell size ${sliderCellSize}`);
-    game = new WumpusGame(currentGameGridSize, currentGameGridSize, sliderFadeSteps);
+  //  game = new WumpusGame(currentGameGridSize, currentGameGridSize, sliderFadeSteps);
     moves = 0;
     gameWon = false;
 	  gameRunning = true;
@@ -68,7 +71,7 @@
   function handleClick(x: number, y: number) {
     if (gameWon || !game) return;
 
-    const res = game.setClicked(x, y);
+  //  const res = game.setClicked(x, y);
     moves++;
 	  console.log(`Clicked ${x},${y}: distance=${res.distance}, found=${res.found}`);
 	

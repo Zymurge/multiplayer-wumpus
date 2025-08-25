@@ -14,6 +14,11 @@ export interface ClientMessage {
     };
 }
 
+export interface ErrorInfo {
+    error: string;
+    message: string | undefined;
+}
+
 export interface GameCell {
     value: string;
     color: string;
@@ -25,19 +30,6 @@ export interface GameState {
     distance: number | undefined;
     found: boolean;
     moves: number;
-}
-
-export interface ErrorInfo {
-    error: string;
-    message: string | undefined;
-}
-
-
-export class GameError extends Error {
-    constructor(message: string, public code?: string) {
-        super(message);
-        this.name = 'GameError';
-    }
 }
 
 export enum ServerMessageType {
