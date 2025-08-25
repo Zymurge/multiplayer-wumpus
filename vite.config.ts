@@ -7,4 +7,9 @@ export default defineConfig({
 		port: 5173,
 		strictPort: false,
 	},
+	resolve: {
+		alias: {
+			'@shared': './src/shared'
+		}
+	}
 });

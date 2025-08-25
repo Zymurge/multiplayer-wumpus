@@ -1,10 +1,4 @@
 import { GridCell, type IGridOperations, type Position } from '@shared/grid/IGridOperations.js';
-import { 
-	type ClientMessage, 
-	type ServerMessage, 
-	type GameCell, 
-	GameError 
-} from '@shared/types/game.js';
 import { COLORS, getDistanceColor } from './ColorManager.js';
 
 /*
@@ -18,8 +12,6 @@ export class BoardState {
     private gridOperations: IGridOperations;
     private cells: Map<string, GridCell>;
     private fadeSteps: number;
-    private clickCount: number = 0;
-    private wumpusFound: boolean = false;
     
     constructor(gridOperations: IGridOperations, fadeSteps: number = 3) {
         // Validate grid dimensions
@@ -35,83 +27,6 @@ export class BoardState {
         this.fadeSteps = fadeSteps;
         this.cells = new Map();
         this.initializeCells();
-    }
-    
-    private getGameState() {
-        const { width, height } = this.gridOperations.getDimensions();
-        const grid: GameCell[][] = Array(height).fill(null).map((_, y) =>
-            Array(width).fill(null).map((_, x) => {
-                const cell = this.cells.get(this.positionKey({ x, y }));
-                if (!cell) throw new GameError('Cell not found', 'CELL_NOT_FOUND');
-                
-                const isWumpus = cell.clicked && cell.value === 0;
-                return {
-                    value: !isWumpus && cell.clicked ? cell.value?.toString() ?? '' : '',
-                    color: cell.fader?.color() ?? '',
-                    showWumpus: isWumpus
-                };
-            })
-        );
-
-        return {
-            grid,
-            moves: this.clickCount,
-            found: this.wumpusFound
-        };
-    }
-
-    private getGameStateMessage(): ServerMessage {
-        return {
-            type: 'game_state',
-            payload: this.getGameState()
-        };
-    }
-
-    private handleClickCell(message: ClientMessage): ServerMessage {
-        if (!message.payload?.x || !message.payload?.y) {
-            throw new GameError('Missing coordinates', 'INVALID_PARAMS');
-        }
-        
-        const pos: Position = { x: message.payload.x, y: message.payload.y };
-        if (!this.isValidPosition(pos)) {
-            throw new GameError('Invalid position', 'INVALID_POSITION');
-        }
-
-        this.clickCount++;
-        const cell = this.cells.get(this.positionKey(pos));
-        if (!cell) {
-            throw new GameError('Cell not found', 'CELL_NOT_FOUND');
-        }
-
-        cell.clicked = true;
-        if (cell.value === 0) {
-            this.wumpusFound = true;
-            return {
-                type: 'game_over',
-                payload: {
-                    ...this.getGameState(),
-                    message: 'Wumpus found!'
-                }
-            };
-        }
-
-        return this.getGameStateMessage();
-    }
-
-    private handleResetGame(): ServerMessage {
-        this.initializeCells();
-        this.clickCount = 0;
-        this.wumpusFound = false;
-        return this.getGameStateMessage();
-    }
-
-    private handleStartGame(message: ClientMessage): ServerMessage {
-        if (!message.payload?.gridSize || !message.payload?.difficulty) {
-            throw new GameError('Missing grid size or difficulty', 'INVALID_PARAMS');
-        }
-        // Initialize new game with parameters
-        this.initializeCells();
-        return this.getGameStateMessage();
     }
     
     /**
@@ -179,8 +94,12 @@ export class BoardState {
     /**
      * Get a cell at the specified position
      */
-    getCell(pos: Position): GridCell | null {
-        return this.cells.get(this.positionKey(pos)) || null;
+    getCell(pos: Position): GridCell {
+        const cell = this.cells.get(this.positionKey(pos));
+        if (!cell) {
+            throw new Error(`Cell not found at position ${pos.x},${pos.y}`);
+        }
+        return cell;
     }
     
     /**
@@ -224,42 +143,7 @@ export class BoardState {
     getFadeSteps(): number {
         return this.fadeSteps;
     }
-
-    /**
-     * Handles incoming client messages and returns appropriate server responses
-     */
-    handleMessage(message: ClientMessage): ServerMessage {
-        try {
-            switch (message.type) {
-                case 'start_game':
-                    return this.handleStartGame(message);
-                case 'click_cell':
-                    return this.handleClickCell(message);
-                case 'reset_game':
-                    return this.handleResetGame();
-                default:
-                    throw new GameError('Invalid message type', 'INVALID_MESSAGE');
-            }
-        } catch (error) {
-            if (error instanceof GameError) {
-                return {
-                    type: 'game_error',
-                    payload: {
-                        error: error.code,
-                        message: error.message
-                    }
-                };
-            }
-            return {
-                type: 'game_error',
-                payload: {
-                    error: 'UNKNOWN_ERROR',
-                    message: 'An unexpected error occurred'
-                }
-            };
-        }
-    }
-
+ 
     /**
      * Reset all cells to initial state
      */
@@ -274,7 +158,7 @@ export class BoardState {
      * Set a cell's clicked state and value
      */
     setCellClicked(pos: Position, value: number): void {
-        console.log(`setCellClicked() at ${pos.x},${pos.y} to value ${value}`);
+        console.debug(`setCellClicked() at ${pos.x},${pos.y} to value ${value}`);
         // Validate value is not negative
 
         if (value < 0) {
@@ -287,14 +171,13 @@ export class BoardState {
         }
         
         const cell = this.getCell(pos);
-        if (cell) {
-            cell.value = value;
-            cell.clicked = true;
-            cell.setColorManager(
-                getDistanceColor(value, this.gridOperations.maxDistance()), 
-                COLORS.unclicked, 
-                this.getFadeSteps()
-            );
-        }
+
+        cell.value = value;
+        cell.clicked = true;
+        cell.setColorManager(
+            getDistanceColor(value, this.gridOperations.maxDistance()), 
+            COLORS.unclicked, 
+            this.getFadeSteps()
+        );
     }
 }

@@ -151,13 +151,13 @@ describe('BoardState', () => {
 			expect(cell!.position).toEqual(pos);
 		});
 
-		it('should return null for invalid position', () => {
+		it('should throw an error for invalid position', () => {
 			const grid = new StubGrid(3, 3);
 			const board = new BoardState(grid);
-			
-			expect(board.getCell({ x: 5, y: 5 })).toBeNull();
-			expect(board.getCell({ x: -1, y: 0 })).toBeNull();
-			expect(board.getCell({ x: 0, y: -1 })).toBeNull();
+
+			expect(() => board.getCell({ x: 5, y: 5 })).toThrow('Cell not found at position 5,5');
+			expect(() => board.getCell({ x: -1, y: 0 })).toThrow('Cell not found at position -1,0');
+			expect(() => board.getCell({ x: 0, y: -1 })).toThrow('Cell not found at position 0,-1');
 		});
 	});
 

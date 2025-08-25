@@ -14,16 +14,30 @@ type WumpusPosition = Position;
 export class WumpusGame {
 	private gridSystem: HexGrid;
 	private boardState: BoardState;
-	wumpus: WumpusPosition;
-	last: { x: number; y: number; dist: number } | null;
-	clickCount: number;
-	
+	protected wumpus: WumpusPosition;
+	protected last: { x: number; y: number; dist: number } | null;
+	protected clicks: number;
+	private wumpusFound: boolean;
+
+	get lastClick(): { x: number; y: number; dist: number } | null {
+		return this.last;
+	}
+
+	get clickCount(): number {
+		return this.clicks;
+	}
+
+	get isWumpusFound(): boolean {
+		return this.wumpusFound;
+	}
+
 	constructor(x: number, y: number, fadeSteps: number = 3) {
 		this.gridSystem = new HexGrid(x, y);
 		this.boardState = new BoardState(this.gridSystem, fadeSteps);
 		this.wumpus = this.initWumpus();
 		this.last = null;
-		this.clickCount = 0;
+		this.clicks = 0;
+		this.wumpusFound = false;
 	}
 
 	/**
@@ -70,6 +84,13 @@ export class WumpusGame {
 	}
 
 	/**
+	 * Checks if the requested position is the Wumpus
+	 */
+	isWumpusAt(pos: Position): boolean {
+		return this.wumpus.x === pos.x && this.wumpus.y === pos.y;
+	}
+
+	/**
 	 * Move wumpus based on distance between clicks
 	 * Uses gridSystem for movement generation and validation
 	 */
@@ -77,7 +98,7 @@ export class WumpusGame {
 		const moves = Math.floor(dist / 2);
 		for (let i = moves; i > 0; i--) {
 			const movement = this.gridSystem.getRandomMovement(this.wumpus);
-			console.log(`-- ${i}: wumpus moving from ${this.wumpus.x},${this.wumpus.y} to ${movement.x},${movement.y}`);
+			console.debug(`-- ${i}: wumpus moving from ${this.wumpus.x},${this.wumpus.y} to ${movement.x},${movement.y}`);
 			
 			this.wumpus.x = movement.x;
 			this.wumpus.y = movement.y;
@@ -99,22 +120,23 @@ export class WumpusGame {
 		
 		// Set clicked cell state using BoardState
 		this.boardState.setCellClicked(clickPos, distance);
-		
-		const found = distance === 0;
-		this.clickCount++;
-		
+		this.clicks++;
+
+		if(this.isWumpusAt(clickPos)) {
+			this.wumpusFound = true;
+		}
+
 		// Capture this clicks to track previous clicks and all Wumpus to move based on distance
 		// between last click and this click
-		if (this.last && !found) {
+		if (this.last && !this.wumpusFound) {
 			// Calculate movement distance using gridSystem
 			const moveDist = this.gridSystem.distance(this.last, clickPos);
-			this.last = { x, y, dist: moveDist };
 			this.moveWumpus(moveDist);
-		} else {
-			this.last = { x, y, dist: 0 };
 		}
-		
-		return { found, distance };
+
+		this.last = { x, y, dist: distance };
+
+		return { found: this.wumpusFound, distance };
 	}
 
 	/**
@@ -125,6 +147,7 @@ export class WumpusGame {
 		this.boardState.reset();
 		this.wumpus = this.initWumpus();
 		this.last = null;
-		this.clickCount = 0;
+		this.clicks = 0;
+		this.wumpusFound = false;
 	}
 };

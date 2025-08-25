@@ -42,7 +42,7 @@ export class GridCell {
 		endRGB:    string,
 		fadeSteps: number
 	) {
-		console.log(`setColorManager() for cell at ${this.position.x},${this.position.y} with startRGB=${startRGB}, endRGB=${endRGB}, fadeSteps=${fadeSteps}`);
+		console.debug(`setColorManager() for cell at ${this.position.x},${this.position.y} with startRGB=${startRGB}, endRGB=${endRGB}, fadeSteps=${fadeSteps}`);
 		const fader = new ColorFader( startRGB, endRGB, fadeSteps );
 		this.fader = fader;
 	}

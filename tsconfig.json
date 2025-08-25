@@ -23,7 +23,7 @@
 		"src/routes/**/*.ts",
 		"src/**/*.svelte",
 		"src/**/*.d.ts"
-	],
+, "src/server/ws/server.ts"	],
 	"exclude": [
 		"node_modules",
 		"build",
