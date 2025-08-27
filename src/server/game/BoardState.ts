@@ -1,3 +1,4 @@
+import { logger } from '@shared/logger.js'
 import { GridCell, type IGridOperations, type Position } from '../grid/IGridOperations.js';
 import { COLORS, getDistanceColor } from './ColorManager.js';
 
@@ -158,7 +159,7 @@ export class BoardState {
      * Set a cell's clicked state and value
      */
     setCellClicked(pos: Position, value: number): void {
-        console.debug(`setCellClicked() at ${pos.x},${pos.y} to value ${value}`);
+        logger.debug(`setCellClicked() at ${pos.x},${pos.y} to value ${value}`);
         // Validate value is not negative
 
         if (value < 0) {

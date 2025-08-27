@@ -1,3 +1,4 @@
+import { logger } from '@shared/logger.js'
 import { ColorFader } from '../../server/game/ColorManager.js';
 
 /**
@@ -42,7 +43,7 @@ export class GridCell {
 		endRGB:    string,
 		fadeSteps: number
 	) {
-		console.debug(`setColorManager() for cell at ${this.position.x},${this.position.y} with startRGB=${startRGB}, endRGB=${endRGB}, fadeSteps=${fadeSteps}`);
+		logger.debug(`setColorManager() for cell at ${this.position.x},${this.position.y} with startRGB=${startRGB}, endRGB=${endRGB}, fadeSteps=${fadeSteps}`);
 		const fader = new ColorFader( startRGB, endRGB, fadeSteps );
 		this.fader = fader;
 	}

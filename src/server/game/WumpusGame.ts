@@ -1,3 +1,4 @@
+import { logger } from '@shared/logger.js'
 import { BoardState } from './BoardState.js';
 import { HexGrid } from '../grid/HexGrid.js';
 import type { GridCell, Position } from '../grid/IGridOperations.js';
@@ -98,7 +99,7 @@ export class WumpusGame {
 		const moves = Math.floor(dist / 2);
 		for (let i = moves; i > 0; i--) {
 			const movement = this.gridSystem.getRandomMovement(this.wumpus);
-			console.debug(`-- ${i}: wumpus moving from ${this.wumpus.x},${this.wumpus.y} to ${movement.x},${movement.y}`);
+			logger.debug(`-- ${i}: wumpus moving from ${this.wumpus.x},${this.wumpus.y} to ${movement.x},${movement.y}`);
 			
 			this.wumpus.x = movement.x;
 			this.wumpus.y = movement.y;

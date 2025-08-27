@@ -13,7 +13,7 @@ function isValidGameState(state: any): state is GameState {
 
 function isValidErrorInfo(error: any): error is ErrorInfo {
     if (typeof error !== 'object' || error === null) {
-        console.log('ErrorInfo: Failed basic object check');
+        logger.info('ErrorInfo: Failed basic object check');
         return false;
     }
 
@@ -23,17 +23,17 @@ function isValidErrorInfo(error: any): error is ErrorInfo {
 
 function isValidServerMessage(message: any): message is ServerMessage {
     if (typeof message !== 'object' || message === null) {
-        console.log('ServerMessage: Failed basic object check');
+        logger.info('ServerMessage: Failed basic object check');
         return false;
     }
     
     if (!Object.values(ServerMessageType).includes(message.type)) {
-        console.log('Failed type check:', message.type);
+        logger.info('Failed type check:', message.type);
         return false;
     }
     
     if (typeof message.payload !== 'object' || message.payload === null) {
-        console.log('Failed payload check');
+        logger.info('Failed payload check');
         return false;
     }
 
@@ -43,20 +43,20 @@ function isValidServerMessage(message: any): message is ServerMessage {
         case ServerMessageType.GAME_STATE:
         case ServerMessageType.GAME_OVER:
             if (!p.gameState) {
-                console.log('Missing gameState in payload');
+                logger.info('Missing gameState in payload');
                 return false;
             }
             return isValidGameState(p.gameState);
             
         case ServerMessageType.GAME_ERROR:
             if (!p.errorInfo) {
-                console.log('Missing error in payload');
+                logger.info('Missing error in payload');
                 return false;
             }
             return isValidErrorInfo(p.errorInfo);
             
         default:
-            console.log('Unknown message type');
+            logger.info('Unknown message type');
             return false;
     }
 }
