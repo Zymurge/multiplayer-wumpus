@@ -6,7 +6,7 @@ import { ClientMessage, ClientMessageType, ServerMessage, ServerMessageType } fr
 import { createServerError, gameMap, handleCellClicked, handleStartGame, handleResetGame } from './ws/handler.js';
 
 // Create HTTP server with basic handler for health check
-const server = createServer((req, res) => {
+export const gameServer = createServer((req, res) => {
   if (req.url === '/health') {
     res.writeHead(200);
     res.end('OK');
@@ -17,7 +17,7 @@ const server = createServer((req, res) => {
 });
 
 // Create WebSocket server on the same HTTP server
-const wss = new WebSocketServer({ server, path: '/api/game/ws' });
+const wss = new WebSocketServer({ server: gameServer, path: '/api/game/ws' });
 
 wss.on('connection', (ws: GameSocket) => {
   ws.id = Math.random().toString(36).substring(7); // Assign a unique ID to the WebSocket connection
@@ -29,33 +29,21 @@ wss.on('connection', (ws: GameSocket) => {
       const message = JSON.parse(data.toString()) as ClientMessage;
 
       switch (message.type) {
-        case ClientMessageType.START_GAME:
-          if (!message.payload?.gridSize || !message.payload?.fadeSteps) {
-            throw new Error('Missing required game parameters');
-          }
-          result = handleStartGame(ws.id, message.payload as { gridSize: number; fadeSteps: number });
-          break;
+      case ClientMessageType.START_GAME:
+        result = handleStartGame(ws.id, message.payload);
+        break;
 
-        case ClientMessageType.CLICK_CELL:
-          if (!gameMap.has(ws.id)) {
-            throw new Error('No active game found');
-          }
-          if (typeof message.payload?.x !== 'number' || typeof message.payload?.y !== 'number') {
-            throw new Error('Invalid click coordinates');
-          }
-          result = handleCellClicked(ws.id, message.payload as { x: number; y: number });
-          break;
+      case ClientMessageType.CLICK_CELL:
+        result = handleCellClicked(ws.id, message.payload);
+        break;
 
-        case ClientMessageType.RESET_GAME:
-          if (!gameMap.has(ws.id)) {
-            throw new Error('No active game found');
-          }
-          result = handleResetGame(ws.id);
-          break;
+      case ClientMessageType.RESET_GAME:
+        result = handleResetGame(ws.id);
+        break;
 
-        default:
-          result = createServerError('INVALID_MESSAGE', `Unknown message type: ${message.type}`);
-          break;
+      default:
+        result = createServerError('INVALID_MESSAGE', `Unknown message type: ${message.type}`);
+        break;
       }
     } catch (err) {
       logger.error('Failed to process message:', err);
@@ -81,7 +69,7 @@ wss.on('connection', (ws: GameSocket) => {
 
 // Start the server
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
+gameServer.listen(PORT, () => {
   logger.info(`Server listening on http://localhost:${PORT}`);
   logger.info(`WebSocket endpoint at ws://localhost:${PORT}/api/game/ws`);
 });

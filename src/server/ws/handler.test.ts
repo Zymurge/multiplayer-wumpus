@@ -180,6 +180,14 @@ describe('handleCellClicked', () => {
         const result = handleCellClicked(TEST_ID, { x: -1, y: 2 });
         checkErrorMessage(result, 'Invalid click coordinates');
     });
+    it('correctly handles Wumpus found click', () => {
+        const result = handleCellClicked(TEST_ID, { x: 4, y: 4 });
+        expect(result).toSatisfy(isValidServerMessage);
+        expect(result.type).toBe(ServerMessageType.GAME_STATE);
+        const state = result.payload.gameState;
+        expect(state).toBeDefined();
+        expect(state!.found).toBe(true);
+    });
 });
 
 describe('handleResetGame', () => {
@@ -199,13 +207,5 @@ describe('handleResetGame', () => {
         gameMap.clear();
         const result = handleResetGame(TEST_ID);
         checkErrorMessage(result, 'No active game found');
-    });
-});
-
-describe('game state updates', () => {
-    it('should maintain game state between moves', () => {
-    });
-
-    it('should provide valid game state structure', () => {
     });
 });

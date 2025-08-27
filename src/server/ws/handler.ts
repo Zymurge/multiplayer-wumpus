@@ -52,18 +52,24 @@ export function getGameState(game: WumpusGame): GameState {
 /**
  * Process a clicked cell and return the updated board state
  * @param id The WebSocket connection ID.
- * @param payload The game parameters.
+ * @param payload The game parameters. Expected to contain x and y coordinates.
  * @returns The updated game state or an error message.
  */
-export function handleCellClicked(id: string, payload: { x: number; y: number }): ServerMessage {
+export function handleCellClicked(id: string, payload: any): ServerMessage {
     const game = gameMap.get(id);
     if (!game) {
-        return createServerError('No active game found');
+        return createServerError('INVALID_GAME_ID', 'No active game found');
+    }
+    if ( typeof payload?.x !== 'number' || typeof payload?.y !== 'number' ) {
+        return createServerError('INVALID_COORDINATES', 'Non-numeric coordinates');
+    }
+    if( payload.x < 0 || payload.y < 0 ) {
+        return createServerError('INVALID_COORDINATES', 'Out-of-bounds coordinates');
     }
     try {
         game.setClicked(payload.x, payload.y);
     } catch (error) {
-        return createServerError('Invalid click coordinates', error instanceof Error ? error.message : undefined);
+        return createServerError('INVALID_COORDINATES', error instanceof Error ? error.message : undefined);
     }
 
     return {
