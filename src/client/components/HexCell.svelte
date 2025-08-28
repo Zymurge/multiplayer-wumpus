@@ -9,7 +9,7 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import WumpusSprite from './WumpusSprite.svelte';
-  import { COLORS } from '@shared/game/colors.js';
+  import { COLORS } from '@shared/colors.js';
 
   export let x: number;
   export let y: number;
