@@ -27,7 +27,7 @@ describe('WebSocket Server', () => {
     });
 
     describe('it handles edge cases', () => {
-        it('should handle unknown message types', async () => {
+        it('should return error on unknown message types', async () => {
             const message = {
                 type: 'UNKNOWN_TYPE',
                 payload: {}
@@ -52,7 +52,7 @@ describe('WebSocket Server', () => {
             });
         });
 
-        it('should handle invalid JSON messages', async () => {
+        it('should return error on invalid JSON messages', async () => {
             ws.send('invalid json');
             
             const response = await new Promise<any>(resolve => {
@@ -64,7 +64,7 @@ describe('WebSocket Server', () => {
             expect(response.type).toBe(ServerMessageType.GAME_ERROR);
         });
 
-        it('should handle start game with missing parameters', async () => {
+        it('should return error on start game with missing parameters', async () => {
             const message = {
                 type: ClientMessageType.START_GAME,
                 payload: {}
@@ -79,7 +79,8 @@ describe('WebSocket Server', () => {
             });
             
             expect(response.type).toBe(ServerMessageType.GAME_ERROR);
-            expect(response.payload.errorInfo.error).toBe('Missing required game parameters');
+            expect(response.payload.errorInfo.error).toBe('INVALID_PARAMETERS');
+            expect(response.payload.errorInfo.message).toBe('Required parameters wrong type or missing');
         });
     });
 });

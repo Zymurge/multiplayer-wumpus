@@ -117,19 +117,43 @@ describe('handleStartGame', () => {
     });
 
     it('should return an error when parameters are missing', () => {
-        var result = handleStartGame(TEST_ID, { gridSize: 5 } as any);
+        let result = handleStartGame(TEST_ID, { gridSize: 5 } as any);
         expect(result).toSatisfy(isValidServerMessage);
         expect(result.type).toBe(ServerMessageType.GAME_ERROR);
         expect(result.payload.errorInfo).toBeDefined();
-        var error = result.payload.errorInfo;
-        expect(error!.error).toBe('Missing required game parameters');
+        expect(result.payload.errorInfo!.error).toBe('INVALID_PARAMETERS');
 
         result = handleStartGame(TEST_ID, { fadeSteps: 4 } as any);
         expect(result).toSatisfy(isValidServerMessage);
         expect(result.type).toBe(ServerMessageType.GAME_ERROR);
         expect(result.payload.errorInfo).toBeDefined();
-        error = result.payload.errorInfo;
-        expect(error!.error).toBe('Missing required game parameters');
+        expect(result.payload.errorInfo!.error).toBe('INVALID_PARAMETERS');
+    });
+
+    it('should return an error when parameters are of wrong type', () => {
+        let result = handleStartGame(TEST_ID, { gridSize: '5', fadeSteps: 4 } as any);
+        expect(result).toSatisfy(isValidServerMessage);
+        expect(result.type).toBe(ServerMessageType.GAME_ERROR);
+        expect(result.payload.errorInfo).toBeDefined();
+        expect(result.payload.errorInfo!.error).toBe('INVALID_PARAMETERS');
+        expect(result.payload.errorInfo!.message).toBe('Required parameters wrong type or missing');
+
+        result = handleStartGame(TEST_ID, { gridSize: 5, fadeSteps: '4' } as any);
+        expect(result).toSatisfy(isValidServerMessage);
+        expect(result.type).toBe(ServerMessageType.GAME_ERROR);
+        expect(result.payload.errorInfo).toBeDefined();
+        expect(result.payload.errorInfo!.error).toBe('INVALID_PARAMETERS');
+        expect(result.payload.errorInfo!.message).toBe('Required parameters wrong type or missing');
+        result = handleStartGame(TEST_ID, { gridSize: 5, fadeSteps: '4' } as any);
+    });
+
+    it('should return an error when parameters are missing', () => {
+        let result = handleStartGame(TEST_ID, { } as any);
+        expect(result).toSatisfy(isValidServerMessage);
+        expect(result.type).toBe(ServerMessageType.GAME_ERROR);
+        expect(result.payload.errorInfo).toBeDefined();
+        expect(result.payload.errorInfo!.error).toBe('INVALID_PARAMETERS');
+        expect(result.payload.errorInfo!.message).toBe('Required parameters wrong type or missing');
     });
 });
 
@@ -161,24 +185,24 @@ describe('handleCellClicked', () => {
     it('should return server error when game not found', () => {
         gameMap.clear();
         const result = handleCellClicked(TEST_ID, { x: 2, y: 3 });
-        checkErrorMessage(result, 'No active game found');
+        checkErrorMessage(result, 'INVALID_GAME_ID', 'No active game found');
     });
 
     it('should return server error for invalid coordinates', () => {
         const result = handleCellClicked(TEST_ID, { x: undefined, y: 3 } as any);
-        checkErrorMessage(result, 'Invalid click coordinates');
+        checkErrorMessage(result, 'INVALID_COORDINATES', 'Non-numeric coordinates');
         const result2 = handleCellClicked(TEST_ID, { x: 2 } as any);
-        checkErrorMessage(result2, 'Invalid click coordinates');
+        checkErrorMessage(result2, 'INVALID_COORDINATES', 'Non-numeric coordinates');
     });
 
     it('should reject out-of-bounds coordinates', () => {
         const result = handleCellClicked(TEST_ID, { x: 10, y: 10 });
-        checkErrorMessage(result, 'Invalid click coordinates');
+        checkErrorMessage(result, 'INVALID_COORDINATES', 'Coordinates not in grid: 10, 10');
     });
 
     it('should reject negative coordinates', () => {
         const result = handleCellClicked(TEST_ID, { x: -1, y: 2 });
-        checkErrorMessage(result, 'Invalid click coordinates');
+        checkErrorMessage(result, 'INVALID_COORDINATES', 'Out-of-bounds coordinates');
     });
     it('correctly handles Wumpus found click', () => {
         const result = handleCellClicked(TEST_ID, { x: 4, y: 4 });
@@ -198,7 +222,6 @@ describe('handleResetGame', () => {
 
     it('should reset game state and remove from map', () => {
         const result = handleResetGame(TEST_ID);
-
         expect(result.type).toBe(ServerMessageType.GAME_STATE);
         expect(gameMap.has(TEST_ID)).toBe(false);
     });
@@ -206,6 +229,6 @@ describe('handleResetGame', () => {
     it('should return server error when game not found', () => {
         gameMap.clear();
         const result = handleResetGame(TEST_ID);
-        checkErrorMessage(result, 'No active game found');
+        checkErrorMessage(result, 'INVALID_GAME_ID', 'No active game found');
     });
 });

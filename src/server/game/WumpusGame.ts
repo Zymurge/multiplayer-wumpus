@@ -113,7 +113,7 @@ export class WumpusGame {
 	setClicked(x: number, y: number): void {
 		const clickPos = { x, y };
 		if (!this.gridSystem.isValidPosition(clickPos)) {
-			throw new Error(`Coords not in grid: ${x}, ${y}`);
+			throw new Error(`Coordinates not in grid: ${x}, ${y}`);
 		}
 
 		// Calculate distance using gridSystem

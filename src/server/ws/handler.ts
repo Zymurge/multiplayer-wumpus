@@ -87,8 +87,13 @@ export function handleCellClicked(id: string, payload: any): ServerMessage {
  * @returns The initial game state or an error message.
  */
 export function handleStartGame(id: string, payload: { gridSize: number; fadeSteps: number }): ServerMessage {
-    if (!payload.gridSize || !payload.fadeSteps) {
-        return createServerError('Missing required game parameters');
+    if (
+        typeof payload !== 'object' ||
+        payload === null ||
+        typeof payload.gridSize !== 'number' ||
+        typeof payload.fadeSteps !== 'number'
+    ) {
+        return createServerError('INVALID_PARAMETERS', 'Required parameters wrong type or missing');
     }
 
     const game = new WumpusGame(
@@ -114,12 +119,12 @@ export function handleStartGame(id: string, payload: { gridSize: number; fadeSte
 export function handleResetGame(id: string): ServerMessage {
     const game = gameMap.get(id);
     if (!game) {
-        return createServerError('No active game found');
+        return createServerError('INVALID_GAME_ID', 'No active game found');
     }
-    
+
     game.reset();
     gameMap.delete(id);
-    
+
     return {
         type: ServerMessageType.GAME_STATE,
         payload: { 

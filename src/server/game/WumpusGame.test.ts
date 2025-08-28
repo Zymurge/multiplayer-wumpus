@@ -119,11 +119,11 @@ describe('WumpusGame', () => {
         });
 
         it('should throw error for out-of-bounds coordinates', () => {
-            expect(() => game.setClicked(-1, 0)).toThrow('Coords not in grid');
-            expect(() => game.setClicked(0, -1)).toThrow('Coords not in grid');
-            expect(() => game.setClicked(5, 0)).toThrow('Coords not in grid');
-            expect(() => game.setClicked(0, 5)).toThrow('Coords not in grid');
-            expect(() => game.setClicked(10, 10)).toThrow('Coords not in grid');
+            expect(() => game.setClicked(-1, 0)).toThrow('Coordinates not in grid');
+            expect(() => game.setClicked(0, -1)).toThrow('Coordinates not in grid');
+            expect(() => game.setClicked(5, 0)).toThrow('Coordinates not in grid');
+            expect(() => game.setClicked(0, 5)).toThrow('Coordinates not in grid');
+            expect(() => game.setClicked(10, 10)).toThrow('Coordinates not in grid');
         });
 
         it('should update cell state when clicked', () => {
