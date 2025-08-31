@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { logger } from '@shared/logger.js';
 import { gameMap, handleStartGame, handleCellClicked, handleResetGame } from './handler.js';
 import { ServerMessage, ServerMessageType, type GameState, type ErrorInfo } from '@shared/types.js';
 import { WumpusGame } from '../game/WumpusGame.js';

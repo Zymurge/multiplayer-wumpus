@@ -1,6 +1,6 @@
 // Pure function to update WumpusGame state from GAME_STATE payload
 // This function is decoupled from WebSocket and Svelte internals
-import { ServerMessageType, type ErrorInfo, type GameState, type ServerMessage } from '../../shared/types.ts';
+import { ServerMessageType, type ErrorInfo, type GameState, type ServerMessage } from '@shared/types.ts';
 
 export function logServerError(errorInfo: { error: string; message?: string }) {
     console.error(`Server error: ${errorInfo.error} ${errorInfo.message || ''}`);

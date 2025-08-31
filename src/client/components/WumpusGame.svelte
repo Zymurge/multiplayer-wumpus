@@ -1,88 +1,100 @@
 <!-- src/routes/+page.svelte -->
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import HexCell from '@client/components/HexCell.svelte';
-  //import { HEXHEIGHT, HEXSIZE } from '@client/components/HexCell.svelte';
+  //import { onMount } from 'svelte';
+  import { get } from 'svelte/store';
   import { mergeTheme, type ColorTheme } from '@shared/colors.js';
+  import { gameStore } from './gameStore.ts';
+  import HexCell from '@client/components/HexCell.svelte';
 
   // Props for customizing colors
   export let colorTheme: ColorTheme = {};
-  // Merge theme with defaults
   $: colors = mergeTheme(colorTheme);
-    // Use sliderCellSize for calculations
+  
+  // Use sliderCellSize for rendering calculations
+  let sliderCellSize = 80; // default cell size
+  let sliderGridSize = 5;  // default grid size
+  let sliderFadeSteps = 4; // default fade steps
+  // cache to prevent midgame slider changes from affecting the game
+  let currentGameGridSize = sliderGridSize; 
+
   $: HEXSIZE = sliderCellSize;
   $: HEXHEIGHT = 2 * sliderCellSize / Math.sqrt(3);
-  $: gridWidth = (sliderCellSize + padding) * (currentGameGridSize + 0.5);
-  $: gridHeight = currentGameGridSize * HEXHEIGHT * 0.76 + HEXHEIGHT / 4;
+  $: GRIDWIDTH = (sliderCellSize + padding) * (currentGameGridSize + 0.5);
+  $: GRIDHEIGHT = currentGameGridSize * HEXHEIGHT * 0.76 + HEXHEIGHT / 4;
 
-  
-  let sliderGridSize = 5;
-  let currentGameGridSize = sliderGridSize;
-  let sliderCellSize = 80; // default cell size
-  let sliderFadeSteps = 4;
-// let game: WumpusGame | undefined;
-  let displayGrid: {
-    value: string;
-    color: string;
-    showWumpus: boolean;
-  }[][] = [];
+  // Game state vars
+  let displayGrid: any[] = [];
   let moves = 0;
   let gameRunning = false;
   let gameWon = false;
-  // Used for reactivity in the grid display
-  let gridUpdate = 0;
+  let errorMsg = '';
+
+  // Subscribe to the gameStore and update local state
+  gameStore.subscribe(($gameStore) => {
+    if ($gameStore.state) {
+      displayGrid = $gameStore.state.grid;
+      moves = $gameStore.state.moves;
+      gameWon = $gameStore.state.found;
+      gameRunning = !$gameStore.state.found;
+      errorMsg = '';
+    } else if ($gameStore.error) {
+      errorMsg = $gameStore.error.message || $gameStore.error.error;
+      displayGrid = [];
+      moves = 0;
+      gameWon = false;
+      gameRunning = false;
+    } else {
+      displayGrid = [];
+      moves = 0;
+      gameWon = false;
+      gameRunning = false;
+      errorMsg = '';
+    }
+  });
   const padding = 0;
 
-// $: if (game && gridUpdate >= 0) {
-//   const { width, height } = game.getDimensions();
-// TODO: Get all this state from the websocket
-
-  $: if (gridUpdate >= 0) {
-    const width = currentGameGridSize;
-    const height = currentGameGridSize;
-    displayGrid = Array.from({ length: height }, (_, y) => {return []}
-      // Array.from({ length: width }, (_, x) => {
-      //   const cell = game!.get(x, y);
-      //   // Assume cell.setColorManager is called by BoardState internally
-      //   // and cell.colorManager provides the correct color for this cell
-      //   const clicked = cell.clicked;
-      //   const isWumpus = clicked && cell.value === 0;
-
-      //   return {
-      //     value: !isWumpus && clicked ? cell.value?.toString() ?? '' : '',
-      //     color: cell.fader?.color() ?? '', // color logic handled by ColorFader/ColorManager
-      //     showWumpus: isWumpus
-      //   };
-      // })
-    );
-  }
-
-  onMount(() => startNewGame());
-
+  /**
+   * Original in browser implementation. Keep for refence until ws is working
+  
+   // TODO: Get all this state from the websocket
+   $: if (game && gridUpdate >= 0) {
+      const { width, height } = game.getDimensions();
+    
+    $: if (gridUpdate >= 0) {
+        const width = currentGameGridSize;
+        const height = currentGameGridSize;
+        displayGrid = Array.from({ length: height }, (_, y) => {return []}
+      Array.from({ length: width }, (_, x) => {
+          const cell = game!.get(x, y);
+          // Assume cell.setColorManager is called by BoardState internally
+          // and cell.colorManager provides the correct color for this cell
+          const clicked = cell.clicked;
+          const isWumpus = clicked && cell.value === 0;
+        
+          return {
+              value: !isWumpus && clicked ? cell.value?.toString() ?? '' : '',
+              color: cell.fader?.color() ?? '', // color logic handled by ColorFader/ColorManager
+              showWumpus: isWumpus
+            };
+          })
+            );
+          }
+          
+          Placeholder: WebSocket integration will go here
+          onMount(() => { ... });
+  */
+          
   function startNewGame() {
-	  currentGameGridSize = sliderGridSize;console.log(`Starting new game with grid size ${currentGameGridSize} and cell size ${sliderCellSize}`);
-  //  game = new WumpusGame(currentGameGridSize, currentGameGridSize, sliderFadeSteps);
-    moves = 0;
-    gameWon = false;
-	  gameRunning = true;
-    gridUpdate++;
+    // This should send a START_GAME message over the WebSocket in the real app
+    // For now, you can test by setting the store directly in unit tests or stories
+    // Example: gameStore.set({ state: mockGameState, error: null });
+    // Optionally, reset local UI state here if needed
   }
 
   function handleClick(x: number, y: number) {
-    if (gameWon || !game) return;
-
-  //  const res = game.setClicked(x, y);
-    moves++;
-	  console.log(`Clicked ${x},${y}: distance=${res.distance}, found=${res.found}`);
-	
-    if (res.found) {
-      gameWon = true;
-      gameRunning = false;
-    }
-
-	// Trigger reactivity
-	gridUpdate++;
-}
+    // This should send a CLICK_CELL message over the WebSocket in the real app
+    // For now, you can test by setting the store directly in unit tests or stories
+  }
 </script>
 
 <div class="controls">
@@ -133,7 +145,11 @@
   {/each}
 </div>
 
-{#if gameWon}
+{#if errorMsg}
+  <div class="error-overlay">
+    <p>{errorMsg}</p>
+  </div>
+{:else if gameWon}
   <div class="win-overlay">
     <p>🎉 You found the Wumpus in {moves} moves!</p>
     <button on:click={startNewGame}>OK</button>
@@ -141,6 +157,19 @@
 {/if}
 
 <style>
+  .error-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(200,0,0,0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 2rem;
+    z-index: 10;
+  }
+
   .hex-grid {
     margin: 0 auto;
     background: var(--grid-background, #6b1f1f);
