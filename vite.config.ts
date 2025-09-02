@@ -17,6 +17,22 @@ export default defineConfig(({ mode }) => ({
 	test: {
 		environment: 'jsdom',
 		setupFiles: './vitest.setup.ts',
+		reporters: ['default','html'],
+		coverage: {
+			provider: 'v8',
+			reportsDirectory: './coverage/client',
+			all: true,
+			include: ['src/client/**/*.{ts,svelte}'],
+			exclude: [
+				'**/node_modules/**',
+				'**/dist/**',
+				'**/build/**',
+				'**/test/**',
+				'**/*.test.ts',
+				'**/*.spec.ts',
+				'**/vitest.setup.ts'
+			]
+		}
 	},
 }));
 

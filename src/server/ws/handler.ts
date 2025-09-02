@@ -86,7 +86,7 @@ export function handleCellClicked(id: string, payload: any): ServerMessage {
  * @param payload The game parameters.
  * @returns The initial game state or an error message.
  */
-export function handleStartGame(id: string, payload: { gridSize: number; fadeSteps: number }): ServerMessage {
+export function handleStartGame(id: string, payload: any): ServerMessage {
     if (
         typeof payload !== 'object' ||
         payload === null ||

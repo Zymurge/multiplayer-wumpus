@@ -1,6 +1,6 @@
 import { logger } from '@shared/logger.js'
 import { createServer } from 'node:http';
-import { WebSocketServer, Server } from 'ws';
+import { WebSocketServer } from 'ws';
 import { GameSocket } from './ws/types.js';
 import { ClientMessage, ClientMessageType, ServerMessage, ServerMessageType } from '@shared/types.js';
 import { createServerError, gameMap, handleCellClicked, handleStartGame, handleResetGame } from './ws/handler.js';
@@ -15,6 +15,18 @@ export const gameServer = createServer((req, res) => {
   res.writeHead(404);
   res.end('Not Found');
 });
+
+// Start the server
+export function startServer(): Promise<void> {
+  const PORT = process.env.PORT || 3000;
+  return new Promise((resolve) => {
+    gameServer.listen(PORT, () => {
+      logger.info(`Server listening on http://localhost:${PORT}`);
+      logger.info(`WebSocket endpoint at ws://localhost:${PORT}/api/game/ws`);
+      resolve();
+    });
+  });
+}
 
 // Create WebSocket server on the same HTTP server
 const wss = new WebSocketServer({ server: gameServer, path: '/api/game/ws' });
@@ -67,9 +79,5 @@ wss.on('connection', (ws: GameSocket) => {
   });
 });
 
-// Start the server
-const PORT = process.env.PORT || 3000;
-gameServer.listen(PORT, () => {
-  logger.info(`Server listening on http://localhost:${PORT}`);
-  logger.info(`WebSocket endpoint at ws://localhost:${PORT}/api/game/ws`);
-});
+
+
