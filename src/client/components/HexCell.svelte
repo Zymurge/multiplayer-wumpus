@@ -37,6 +37,7 @@
 
 <button
   class="hex-cell"
+  data-testid={`cell-${x}-${y}`}
   style:width="{hexSize}px"
   style:height="{hexHeight}px"
   style:left="{left}px"

@@ -5,6 +5,7 @@
   import { mergeTheme, type ColorTheme } from '@shared/colors.js';
   import { gameStore } from './gameStore.ts';
   import HexCell from '@client/components/HexCell.svelte';
+  import { wsClient } from '@client/ws/client.ts';
 
   // Props for customizing colors
   export let colorTheme: ColorTheme = {};
@@ -85,15 +86,14 @@
   */
           
   function startNewGame() {
-    // This should send a START_GAME message over the WebSocket in the real app
-    // For now, you can test by setting the store directly in unit tests or stories
-    // Example: gameStore.set({ state: mockGameState, error: null });
-    // Optionally, reset local UI state here if needed
+    // Lazy-connect and request a new game
+    // Use current slider values for grid size and fade steps; cell size is visual only
+    wsClient.startGame(currentGameGridSize, sliderFadeSteps);
   }
 
   function handleClick(x: number, y: number) {
-    // This should send a CLICK_CELL message over the WebSocket in the real app
-    // For now, you can test by setting the store directly in unit tests or stories
+  // Send a click to the server; no-op if not connected yet
+  wsClient.clickCell(x, y);
   }
 </script>
 
@@ -110,7 +110,7 @@
         Results Lifetime: {sliderFadeSteps}
         <input type="range" min="1" max="10" bind:value={sliderFadeSteps} />
     </label>
-	<button on:click={startNewGame}>
+	<button data-testid="restart-btn" on:click={startNewGame}>
         {gameRunning ? 'Restart' : 'New Game'}
     </button>
 </div>
@@ -147,12 +147,12 @@
 
 {#if errorMsg}
   <div class="error-overlay">
-    <p>{errorMsg}</p>
+    <p data-testid="error-msg">{errorMsg}</p>
   </div>
 {:else if gameWon}
   <div class="win-overlay">
     <p>🎉 You found the Wumpus in {moves} moves!</p>
-    <button on:click={startNewGame}>OK</button>
+    <button data-testid="ok-btn" on:click={startNewGame}>OK</button>
   </div>
 {/if}
 

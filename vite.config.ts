@@ -1,41 +1,20 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-//import { defineConfig } from 'vite';
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'vite';
 
-export default defineConfig(({ mode }) => ({
-	plugins: [sveltekit()],
-	server: {
-		port: 5173,
-		strictPort: false,
-	},
-	resolve: {
-		alias: {
-			'@shared': './src/shared'
-		},
-		conditions: mode === 'test' ? ['browser'] : [],
-	},
-	test: {
-		environment: 'jsdom',
-		setupFiles: './vitest.setup.ts',
-		reporters: ['default','html'],
-		coverage: {
-			provider: 'v8',
-			reportsDirectory: './coverage/client',
-			all: true,
-			include: ['src/client/**/*.{ts,svelte}'],
-			exclude: [
-				'**/node_modules/**',
-				'**/dist/**',
-				'**/build/**',
-				'**/test/**',
-				'**/*.test.ts',
-				'**/*.spec.ts',
-				'**/vitest.setup.ts'
-			]
-		}
-	},
-}));
+export default defineConfig({
+    plugins: [sveltekit()],
+    server: {
+        port: 5173,
+        strictPort: false,
+    },
+    resolve: {
+        alias: {
+            '@shared': './src/shared',
+            '@server': './src/server',
+            '@client': './src/client'
+        }
+    }
+});
 
 console.log("Vite config loaded");
 console.log("NODE_ENV:", process.env.NODE_ENV);
-console.log("defineConfig:", defineConfig);

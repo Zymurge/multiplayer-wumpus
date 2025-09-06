@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { GameState, ErrorInfo } from '../../shared/types.ts';
+import type { GameState, ErrorInfo } from '@shared/types.ts';
 
 // The shape of the store: either a game state or an error
 export type GameStoreState = {

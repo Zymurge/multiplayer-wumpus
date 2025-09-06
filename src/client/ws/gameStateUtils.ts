@@ -2,12 +2,6 @@
 // This function is decoupled from WebSocket and Svelte internals
 import { ServerMessageType, type ErrorInfo, type GameState, type ServerMessage } from '@shared/types.ts';
 
-export function logServerError(errorInfo: { error: string; message?: string }) {
-    console.error(`Server error: ${errorInfo.error} ${errorInfo.message || ''}`);
-    // You can add more error handling logic here
-    return null;
-}
-
 type HandlerResult = { gameState: GameState } | { errorInfo: ErrorInfo };
 
 /**
