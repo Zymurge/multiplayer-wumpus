@@ -5,7 +5,7 @@
   import { mergeTheme, type ColorTheme } from '@shared/colors.js';
   import { gameStore } from './gameStore.ts';
   import HexCell from '@client/components/HexCell.svelte';
-  import { wsClient } from '@client/ws/client.ts';
+  import { wsClient } from '@client/ws/wsClient.ts';
 
   // Props for customizing colors
   export let colorTheme: ColorTheme = {};
